@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.dev.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist-scripts",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/api/*": ["./src/api/*"],
+      "@/core/*": ["./src/core/*"],
+      "@/models/*": ["./src/models/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/config/*": ["./src/config/*"]
+    }
+  },
+  "include": [
+    "scripts/**/*",
+    "src/config/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-scripts",
+    "coverage"
+  ]
+}

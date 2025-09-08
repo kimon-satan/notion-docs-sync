@@ -10,12 +10,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
-    "format": "prettier --write src/**/*.ts",
+    "lint": "eslint src/**/*.ts scripts/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts scripts/**/*.ts --fix",
+    "format": "prettier --write src/**/*.ts scripts/**/*.ts",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "script:fetch-docs": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/fetch-docs.ts",
+    "script:check-sync": "npm run script:fetch-docs"
   },
   "keywords": [
     "notion",
