@@ -14,6 +14,7 @@ import { config } from './lib/config';
 import { NotionClient } from './lib/notion-client';
 import { CodeAnalyzer } from './lib/code-analyzer';
 import { DocSyncChecker } from './lib/doc-sync-checker';
+import { LocalDocsReader } from './lib/local-docs-reader';
 
 interface SyncResult {
   readonly status: 'success' | 'warning' | 'error';
@@ -32,11 +33,25 @@ async function main(): Promise<void> {
     const notionClient = new NotionClient(config.notion.apiKey);
     const codeAnalyzer = new CodeAnalyzer(config.analysis.sourceDir);
     const syncChecker = new DocSyncChecker(notionClient, codeAnalyzer);
+    const localDocsReader = new LocalDocsReader(config.analysis.docsDir);
 
-    // Fetch current documentation state
+    // Read local docs to get page IDs to fetch
+    console.log('📂 Reading local documentation files...');
+    const pageIds = await localDocsReader.getPageIds();
+
+    if (pageIds.length === 0) {
+      console.log('⚠️  No local docs found with page IDs. Exiting.');
+      process.exit(0);
+    }
+
+    // Fetch specific documentation pages from Notion
     console.log('📖 Fetching Notion documentation...');
-    const docs = await notionClient.fetchAllDocs(config.notion.databaseId);
+    const docs = await notionClient.fetchPagesByIds(pageIds);
     console.log(`Found ${docs.length} documentation pages`);
+
+    // Update local documentation files with fresh content
+    console.log('💾 Updating local documentation files...');
+    await localDocsReader.updateLocalDocs(docs);
 
     // Analyze current codebase
     console.log('🔍 Analyzing codebase...');

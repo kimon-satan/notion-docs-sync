@@ -19,6 +19,7 @@ export interface ScriptConfig {
   };
   readonly analysis: {
     readonly sourceDir: string;
+    readonly docsDir: string;
     readonly excludePatterns: string[];
   };
 }
@@ -53,6 +54,7 @@ export const config: ScriptConfig = {
   },
   analysis: {
     sourceDir: getEnvVar('SOURCE_DIR', './src'),
+    docsDir: getEnvVar('DOCS_DIR', './notionDocs'),
     excludePatterns: [
       'node_modules/**',
       'dist/**',
