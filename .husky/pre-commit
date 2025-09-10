@@ -1,4 +1,27 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run script:check-sync
+echo "🔄 Running documentation sync check..."
+
+# Run the documentation sync script
+if npm run script:check-sync; then
+  echo "✅ Documentation sync completed successfully"
+  
+  # Check if sync script modified any files in notionDocs
+  if [ -n "$(git diff --name-only notionDocs/)" ]; then
+    echo "📝 Documentation files were updated, staging changes..."
+    
+    # Stage the updated documentation files
+    git add notionDocs/
+    
+    echo "✅ Updated documentation files have been staged for commit"
+  else
+    echo "✅ No documentation updates needed"
+  fi
+  
+  echo "🚀 Pre-commit checks completed successfully"
+else
+  echo "❌ Documentation sync failed"
+  echo "Please check the sync issues and try again"
+  exit 1
+fi
