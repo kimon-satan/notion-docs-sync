@@ -4,4 +4,5 @@ pageId=26aa14d241bd8082a1b1e3f301a53014
 
 *Last updated: 2025-09-10*
 
-This will be documentation about the source code
+The application consists of a single main function which outputs some text.
+To run it locally use `npm run dev`
