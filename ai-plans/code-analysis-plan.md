@@ -114,13 +114,13 @@ package.json                     # Add new npm script and test script
 
 ### Files:
 
-- **Create**: `scripts/lib/doc-mapper.ts` - Documentation mapping logic
-- **Modify**: `scripts/types/doc-sync.ts` - Add `DocumentationFile` interface
+- **Create**: `scripts/lib/doc-mapper.ts` - Documentation mapping logic ✅
+- **Modify**: `scripts/types/doc-sync.ts` - Add `DocumentationFile` interface ✅ (already completed in Stage 1)
 
 ### Actions:
 
-1. **Implement content-based mapping** (`scripts/lib/doc-mapper.ts`)
-   - Scan documentation for explicit file path references (`src/index.ts`)
+1. **Implement content-based mapping** (`scripts/lib/doc-mapper.ts`) 🔄 IN PROGRESS
+   - Scan documentation for explicit file path references (`src/index.ts`) ✅ (`extractFilePathReferences` implemented & tested)
    - Extract function name references (`` `generatePoem()` ``)
    - Build mapping table of docs → relevant code files
 
@@ -136,13 +136,13 @@ package.json                     # Add new npm script and test script
 
 ### Tests:
 
-- **Create**: `scripts/__tests__/doc-mapper.test.ts` - Unit tests for documentation mapping
-- **Create**: `scripts/__tests__/fixtures/sample-docs/` - Sample documentation files
+- **Create**: `scripts/__tests__/doc-mapper.test.ts` - Unit tests for documentation mapping ✅
+- **Create**: `scripts/__tests__/fixtures/sample-docs/` - Sample documentation files ✅
 
 ### Test Specifications:
 
-1. **Content-based mapping tests** (`scripts/__tests__/doc-mapper.test.ts`)
-   - Test extraction of explicit file path references from markdown
+1. **Content-based mapping tests** (`scripts/__tests__/doc-mapper.test.ts`) 🔄 PARTIAL
+   - Test extraction of explicit file path references from markdown ✅ (3/3 tests passing)
    - Test function name reference extraction (`` `generatePoem()` ``)
    - Test mapping table creation with various documentation formats
 
@@ -156,15 +156,15 @@ package.json                     # Add new npm script and test script
    - Test integration with existing `LocalDocsReader` class
    - Test mapping cache performance and invalidation
 
-**Deliverables**:
+**Deliverables**: 🔄 IN PROGRESS
 
-- `scripts/types/doc-sync.ts` with enhanced `DocumentationFile` interface
-- `scripts/lib/doc-mapper.ts` with `DocMapper` class containing:
-  - Content scanning functions for file/function references
+- `scripts/types/doc-sync.ts` with enhanced `DocumentationFile` interface ✅
+- `scripts/lib/doc-mapper.ts` with `DocMapper` class containing: 🔄 PARTIAL
+  - Content scanning functions for file/function references ✅ (`extractFilePathReferences` complete)
   - Heuristic matching algorithms
   - Integration methods for `LocalDocsReader`
-- `scripts/__tests__/doc-mapper.test.ts` with comprehensive mapping tests
-- `scripts/__tests__/fixtures/sample-docs/` with test documentation files
+- `scripts/__tests__/doc-mapper.test.ts` with comprehensive mapping tests ✅
+- `scripts/__tests__/fixtures/sample-docs/` with test documentation files ✅
 
 ---
 
