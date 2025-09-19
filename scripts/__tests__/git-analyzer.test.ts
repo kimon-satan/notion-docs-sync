@@ -1,9 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'fs';
-import { join } from 'path';
 import * as childProcess from 'child_process';
 import { GitAnalyzer } from '../lib/git-analyzer';
-import type { CodeChange } from '../types/doc-sync';
 
 // Mock child_process for git commands
 vi.mock('child_process');
