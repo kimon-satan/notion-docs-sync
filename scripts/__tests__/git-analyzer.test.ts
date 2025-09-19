@@ -9,7 +9,6 @@ const mockExecSync = vi.mocked(childProcess.execSync);
 
 // Mock fs for reading fixture files
 vi.mock('fs');
-const mockReadFileSync = vi.mocked(readFileSync);
 
 describe('GitAnalyzer', () => {
   let gitAnalyzer: GitAnalyzer;
