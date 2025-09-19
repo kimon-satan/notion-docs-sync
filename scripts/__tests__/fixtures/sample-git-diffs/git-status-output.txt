@@ -1,0 +1,4 @@
+M	src/index.ts
+A	src/new-feature.ts
+D	src/deprecated-utils.ts
+M	package.json
