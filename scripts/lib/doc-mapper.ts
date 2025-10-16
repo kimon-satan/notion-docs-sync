@@ -4,6 +4,8 @@ import { DocumentationFile } from '../types/doc-sync.js';
  * Maps documentation files to relevant code files using content analysis and heuristics
  */
 export class DocMapper {
+  private mappingCache: Map<string, string[]> = new Map();
+
   /**
    * Scans documentation content for explicit file path references
    * @param content - The documentation content to scan
@@ -375,7 +377,50 @@ export class DocMapper {
     documentationFiles: DocumentationFile[],
     availableCodeFiles: string[]
   ): DocumentationFile[] {
-    throw new Error('Method not implemented');
+    return documentationFiles.map((docFile) => {
+      const linkedFiles = new Set<string>();
+
+      // 1. Extract explicit file path references from content
+      const referencedPaths = this.extractFilePathReferences(docFile.content);
+      for (const refPath of referencedPaths) {
+        if (availableCodeFiles.includes(refPath)) {
+          linkedFiles.add(refPath);
+        }
+      }
+
+      // 2. Add files from filename pattern matching
+      const filenameMatches = this.matchFilenamePatterns(docFile.filePath, availableCodeFiles);
+      for (const match of filenameMatches) {
+        linkedFiles.add(match);
+      }
+
+      // 3. Add files from directory structure matching
+      const directoryMatches = this.matchDirectoryStructure(docFile.filePath, availableCodeFiles);
+      for (const match of directoryMatches) {
+        linkedFiles.add(match);
+      }
+
+      // Convert Set to Array
+      const linkedCodeFiles = Array.from(linkedFiles);
+
+      // Calculate overall confidence score
+      // Use the highest confidence among all linked files
+      let maxConfidence = 0;
+      for (const codeFile of linkedCodeFiles) {
+        const confidence = this.calculateMappingConfidence(
+          { ...docFile, linkedCodeFiles },
+          codeFile
+        );
+        maxConfidence = Math.max(maxConfidence, confidence);
+      }
+
+      // Return enhanced documentation file
+      return {
+        ...docFile,
+        linkedCodeFiles,
+        mappingConfidence: maxConfidence,
+      };
+    });
   }
 
   /**
@@ -384,7 +429,10 @@ export class DocMapper {
    * @returns void
    */
   cacheMappingResults(mappingTable: Map<string, string[]>): void {
-    throw new Error('Method not implemented');
+    // Store all entries from the mapping table into the cache
+    for (const [docFilePath, codeFiles] of mappingTable.entries()) {
+      this.mappingCache.set(docFilePath, [...codeFiles]);
+    }
   }
 
   /**
@@ -393,7 +441,8 @@ export class DocMapper {
    * @returns Cached mapping results or null if not found
    */
   getCachedMappingResults(docFilePath: string): string[] | null {
-    throw new Error('Method not implemented');
+    const cached = this.mappingCache.get(docFilePath);
+    return cached ? [...cached] : null;
   }
 
   /**
@@ -402,6 +451,12 @@ export class DocMapper {
    * @returns void
    */
   invalidateMappingCache(docFilePath?: string): void {
-    throw new Error('Method not implemented');
+    if (docFilePath === undefined) {
+      // Clear all cache entries
+      this.mappingCache.clear();
+    } else {
+      // Remove specific cache entry
+      this.mappingCache.delete(docFilePath);
+    }
   }
 }
