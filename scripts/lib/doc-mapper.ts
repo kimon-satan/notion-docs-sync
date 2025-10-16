@@ -154,7 +154,73 @@ export class DocMapper {
    * @returns Array of potentially matching code files
    */
   matchFilenamePatterns(docFilePath: string, availableCodeFiles: string[]): string[] {
-    throw new Error('Method not implemented');
+    const matches: string[] = [];
+
+    // Extract the base name from the doc file (e.g., 'doc-mapper' from 'docs/doc-mapper.md')
+    const docBaseName = this.extractBaseName(docFilePath);
+    if (!docBaseName) {
+      return matches;
+    }
+
+    // Create variations of the doc name to search for
+    const searchTerms = this.generateSearchTerms(docBaseName);
+
+    for (const codeFile of availableCodeFiles) {
+      const codeBaseName = this.extractBaseName(codeFile);
+      if (!codeBaseName) {
+        continue;
+      }
+
+      // Check if any search term matches the code file base name (case-insensitive)
+      const codeBaseNameLower = codeBaseName.toLowerCase();
+      for (const term of searchTerms) {
+        const termLower = term.toLowerCase();
+        if (codeBaseNameLower.includes(termLower) || termLower.includes(codeBaseNameLower)) {
+          matches.push(codeFile);
+          break;
+        }
+      }
+    }
+
+    return matches;
+  }
+
+  /**
+   * Helper method to extract base name from a file path (without extension and directory)
+   * @param filePath - The file path to process
+   * @returns The base name or null if extraction fails
+   */
+  private extractBaseName(filePath: string): string | null {
+    const parts = filePath.split('/');
+    const fileName = parts[parts.length - 1];
+    const nameWithoutExt = fileName.split('.')[0];
+    return nameWithoutExt || null;
+  }
+
+  /**
+   * Helper method to generate search terms from a base name
+   * @param baseName - The base name to generate terms from
+   * @returns Array of search terms
+   */
+  private generateSearchTerms(baseName: string): string[] {
+    const terms = new Set<string>();
+
+    // Add the original name
+    terms.add(baseName);
+
+    // Handle hyphenated names (e.g., 'doc-mapper' -> ['doc', 'mapper'])
+    const hyphenParts = baseName.split('-');
+    if (hyphenParts.length > 1) {
+      hyphenParts.forEach((part) => terms.add(part));
+    }
+
+    // Handle camelCase/PascalCase names
+    const camelParts = baseName.split(/(?=[A-Z])/);
+    if (camelParts.length > 1) {
+      camelParts.forEach((part) => terms.add(part.toLowerCase()));
+    }
+
+    return Array.from(terms);
   }
 
   /**
@@ -164,7 +230,68 @@ export class DocMapper {
    * @returns Array of code files in related directories
    */
   matchDirectoryStructure(docFilePath: string, availableCodeFiles: string[]): string[] {
-    throw new Error('Method not implemented');
+    const matches: string[] = [];
+
+    // Extract directory path from doc file (e.g., 'docs/components/button.md' -> ['components', 'button'])
+    const docPathParts = this.extractPathParts(docFilePath);
+
+    for (const codeFile of availableCodeFiles) {
+      const codePathParts = this.extractPathParts(codeFile);
+
+      // Check if the code file shares directory structure with the doc file
+      if (this.hasMatchingDirectoryStructure(docPathParts, codePathParts)) {
+        matches.push(codeFile);
+      }
+    }
+
+    return matches;
+  }
+
+  /**
+   * Helper method to extract meaningful path parts from a file path
+   * @param filePath - The file path to process
+   * @returns Array of path parts (excluding root 'src', 'docs', 'lib', etc.)
+   */
+  private extractPathParts(filePath: string): string[] {
+    const parts = filePath.split('/');
+    const filtered: string[] = [];
+
+    for (const part of parts) {
+      // Skip common root directories and the file name with extension
+      if (
+        part !== 'src' &&
+        part !== 'docs' &&
+        part !== 'lib' &&
+        part !== 'tests' &&
+        part !== 'test' &&
+        !part.includes('.')
+      ) {
+        filtered.push(part);
+      }
+    }
+
+    return filtered;
+  }
+
+  /**
+   * Helper method to check if two path structures match
+   * @param docParts - Path parts from documentation file
+   * @param codeParts - Path parts from code file
+   * @returns true if they share meaningful directory structure
+   */
+  private hasMatchingDirectoryStructure(docParts: string[], codeParts: string[]): boolean {
+    if (docParts.length === 0 || codeParts.length === 0) {
+      return false;
+    }
+
+    // Check if any doc path parts match code path parts
+    for (const docPart of docParts) {
+      if (codeParts.includes(docPart)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -174,7 +301,68 @@ export class DocMapper {
    * @returns Confidence score between 0 and 1
    */
   calculateMappingConfidence(docFile: DocumentationFile, codeFile: string): number {
-    throw new Error('Method not implemented');
+    let confidence = 0;
+
+    // High confidence: Explicit file path references (0.9)
+    const referencedPaths = this.extractFilePathReferences(docFile.content);
+    if (referencedPaths.includes(codeFile)) {
+      confidence = Math.max(confidence, 0.9);
+    }
+
+    // Medium-high confidence: File path in linkedCodeFiles (0.85)
+    if (docFile.linkedCodeFiles.includes(codeFile)) {
+      confidence = Math.max(confidence, 0.85);
+    }
+
+    // Medium confidence: Function name matches with code file name (0.5-0.6)
+    const functionNames = this.extractFunctionNameReferences(docFile.content);
+    const codeBaseName = this.extractBaseName(codeFile);
+    if (codeBaseName) {
+      for (const funcName of functionNames) {
+        const funcLower = funcName.toLowerCase();
+        const codeLower = codeBaseName.toLowerCase();
+        if (
+          funcLower.includes(codeLower) ||
+          codeLower.includes(funcLower) ||
+          this.similarWords(funcLower, codeLower)
+        ) {
+          confidence = Math.max(confidence, 0.5);
+          break;
+        }
+      }
+    }
+
+    // Low-medium confidence: Filename pattern matches (0.3)
+    const filenameMatches = this.matchFilenamePatterns(docFile.filePath, [codeFile]);
+    if (filenameMatches.length > 0) {
+      confidence = Math.max(confidence, 0.3);
+    }
+
+    // Low confidence: Directory structure matches (0.15)
+    const directoryMatches = this.matchDirectoryStructure(docFile.filePath, [codeFile]);
+    if (directoryMatches.length > 0) {
+      confidence = Math.max(confidence, 0.15);
+    }
+
+    return confidence;
+  }
+
+  /**
+   * Helper method to check if two words are similar (share common parts)
+   * @param word1 - First word to compare
+   * @param word2 - Second word to compare
+   * @returns true if words share significant common parts
+   */
+  private similarWords(word1: string, word2: string): boolean {
+    // Check if they share common substrings of length 4 or more
+    const minLength = 4;
+    for (let i = 0; i <= word1.length - minLength; i++) {
+      const substring = word1.substring(i, i + minLength);
+      if (word2.includes(substring)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

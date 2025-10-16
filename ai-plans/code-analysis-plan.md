@@ -124,10 +124,10 @@ package.json                     # Add new npm script and test script
    - Extract function name references (`` `generatePoem()` ``) ✅ (`extractFunctionNameReferences` implemented & tested)
    - Build mapping table of docs → relevant code files ✅ (`buildMappingTable` implemented & tested)
 
-2. **Add heuristic matching** (`scripts/lib/doc-mapper.ts`)
-   - Match documentation filenames to code file patterns
-   - Implement directory structure-based mapping
-   - Create confidence scoring for mapping relationships
+2. **Add heuristic matching** (`scripts/lib/doc-mapper.ts`) ✅ COMPLETED
+   - Match documentation filenames to code file patterns ✅ (`matchFilenamePatterns` implemented & tested)
+   - Implement directory structure-based mapping ✅ (`matchDirectoryStructure` implemented & tested)
+   - Create confidence scoring for mapping relationships ✅ (`calculateMappingConfidence` implemented & tested)
 
 3. **Extend LocalDocsReader integration** (`scripts/lib/doc-mapper.ts`)
    - Enhance `DocumentationFile` interface with `linkedCodeFiles`
@@ -146,10 +146,10 @@ package.json                     # Add new npm script and test script
    - Test function name reference extraction (`` `generatePoem()` ``) ✅ (3/3 tests passing)
    - Test mapping table creation with various documentation formats ✅ (2/2 tests passing)
 
-2. **Heuristic matching tests** (`scripts/__tests__/doc-mapper.test.ts`)
-   - Test filename pattern matching (doc-mapper.md → doc-mapper.ts)
-   - Test directory structure-based mapping
-   - Test confidence scoring algorithm with different matching scenarios
+2. **Heuristic matching tests** (`scripts/__tests__/doc-mapper.test.ts`) ✅ COMPLETED (9/9 tests passing)
+   - Test filename pattern matching (doc-mapper.md → doc-mapper.ts) ✅ (3/3 tests passing)
+   - Test directory structure-based mapping ✅ (2/2 tests passing)
+   - Test confidence scoring algorithm with different matching scenarios ✅ (4/4 tests passing)
 
 3. **LocalDocsReader integration tests** (`scripts/__tests__/doc-mapper.test.ts`)
    - Test enhanced `DocumentationFile` interface with `linkedCodeFiles`
@@ -161,7 +161,7 @@ package.json                     # Add new npm script and test script
 - `scripts/types/doc-sync.ts` with enhanced `DocumentationFile` interface ✅
 - `scripts/lib/doc-mapper.ts` with `DocMapper` class containing: 🔄 PARTIAL
   - Content scanning functions for file/function references ✅ ALL COMPLETE (`extractFilePathReferences`, `extractFunctionNameReferences`, `buildMappingTable`)
-  - Heuristic matching algorithms
+  - Heuristic matching algorithms ✅ ALL COMPLETE (`matchFilenamePatterns`, `matchDirectoryStructure`, `calculateMappingConfidence`)
   - Integration methods for `LocalDocsReader`
 - `scripts/__tests__/doc-mapper.test.ts` with comprehensive mapping tests ✅
 - `scripts/__tests__/fixtures/sample-docs/` with test documentation files ✅
