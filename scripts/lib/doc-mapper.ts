@@ -91,7 +91,28 @@ export class DocMapper {
    * @returns Array of function names referenced in the documentation
    */
   extractFunctionNameReferences(content: string): string[] {
-    throw new Error('Method not implemented');
+    const functionNames = new Set<string>();
+
+    // Pattern 1: Function calls in backticks: `functionName()`
+    const backtickFunctionPattern = /`([a-zA-Z_$][a-zA-Z0-9_$]*)\(\)`/g;
+    let match;
+    while ((match = backtickFunctionPattern.exec(content)) !== null) {
+      functionNames.add(match[1]);
+    }
+
+    // Pattern 2: Function declarations in code blocks: function myFunction()
+    const functionDeclarationPattern = /function\s+([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g;
+    while ((match = functionDeclarationPattern.exec(content)) !== null) {
+      functionNames.add(match[1]);
+    }
+
+    // Pattern 3: Method calls in code: object.methodName()
+    const methodCallPattern = /\.([a-zA-Z_$][a-zA-Z0-9_$]*)\(\)/g;
+    while ((match = methodCallPattern.exec(content)) !== null) {
+      functionNames.add(match[1]);
+    }
+
+    return Array.from(functionNames);
   }
 
   /**
@@ -104,7 +125,26 @@ export class DocMapper {
     documentationFiles: DocumentationFile[],
     availableCodeFiles: string[]
   ): Map<string, string[]> {
-    throw new Error('Method not implemented');
+    const mappingTable = new Map<string, string[]>();
+
+    for (const docFile of documentationFiles) {
+      const linkedFiles = new Set<string>();
+
+      // Extract file path references from the documentation content
+      const referencedPaths = this.extractFilePathReferences(docFile.content);
+
+      // Add any referenced paths that exist in available code files
+      for (const refPath of referencedPaths) {
+        if (availableCodeFiles.includes(refPath)) {
+          linkedFiles.add(refPath);
+        }
+      }
+
+      // Store the mapping
+      mappingTable.set(docFile.filePath, Array.from(linkedFiles));
+    }
+
+    return mappingTable;
   }
 
   /**

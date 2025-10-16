@@ -119,10 +119,10 @@ package.json                     # Add new npm script and test script
 
 ### Actions:
 
-1. **Implement content-based mapping** (`scripts/lib/doc-mapper.ts`) 🔄 IN PROGRESS
+1. **Implement content-based mapping** (`scripts/lib/doc-mapper.ts`) ✅ COMPLETED
    - Scan documentation for explicit file path references (`src/index.ts`) ✅ (`extractFilePathReferences` implemented & tested)
-   - Extract function name references (`` `generatePoem()` ``)
-   - Build mapping table of docs → relevant code files
+   - Extract function name references (`` `generatePoem()` ``) ✅ (`extractFunctionNameReferences` implemented & tested)
+   - Build mapping table of docs → relevant code files ✅ (`buildMappingTable` implemented & tested)
 
 2. **Add heuristic matching** (`scripts/lib/doc-mapper.ts`)
    - Match documentation filenames to code file patterns
@@ -141,10 +141,10 @@ package.json                     # Add new npm script and test script
 
 ### Test Specifications:
 
-1. **Content-based mapping tests** (`scripts/__tests__/doc-mapper.test.ts`) 🔄 PARTIAL
+1. **Content-based mapping tests** (`scripts/__tests__/doc-mapper.test.ts`) ✅ COMPLETED (8/8 tests passing)
    - Test extraction of explicit file path references from markdown ✅ (3/3 tests passing)
-   - Test function name reference extraction (`` `generatePoem()` ``)
-   - Test mapping table creation with various documentation formats
+   - Test function name reference extraction (`` `generatePoem()` ``) ✅ (3/3 tests passing)
+   - Test mapping table creation with various documentation formats ✅ (2/2 tests passing)
 
 2. **Heuristic matching tests** (`scripts/__tests__/doc-mapper.test.ts`)
    - Test filename pattern matching (doc-mapper.md → doc-mapper.ts)
@@ -160,7 +160,7 @@ package.json                     # Add new npm script and test script
 
 - `scripts/types/doc-sync.ts` with enhanced `DocumentationFile` interface ✅
 - `scripts/lib/doc-mapper.ts` with `DocMapper` class containing: 🔄 PARTIAL
-  - Content scanning functions for file/function references ✅ (`extractFilePathReferences` complete)
+  - Content scanning functions for file/function references ✅ ALL COMPLETE (`extractFilePathReferences`, `extractFunctionNameReferences`, `buildMappingTable`)
   - Heuristic matching algorithms
   - Integration methods for `LocalDocsReader`
 - `scripts/__tests__/doc-mapper.test.ts` with comprehensive mapping tests ✅
