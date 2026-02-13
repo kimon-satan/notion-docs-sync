@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { resolveConfig, validateConfig, getDefaultConfig } from '../lib/config';
 import * as fs from 'fs';
 
@@ -11,58 +11,19 @@ const mockExistsSync = vi.mocked(fs.existsSync);
 const mockReadFileSync = vi.mocked(fs.readFileSync);
 
 describe('config', () => {
-  const originalEnv = { ...process.env };
-
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env = { ...originalEnv };
     mockExistsSync.mockReturnValue(false);
   });
 
-  afterEach(() => {
-    process.env = originalEnv;
-  });
-
   describe('resolveConfig', () => {
-    it('should return defaults when no config sources are available', () => {
-      delete process.env['NOTION_API_KEY'];
-      delete process.env['NOTION_DATABASE_ID'];
-      delete process.env['SOURCE_DIR'];
-      delete process.env['DOCS_DIR'];
-
+    it('should return defaults when no config file exists', () => {
       const config = resolveConfig();
 
       expect(config.notion.apiKey).toBe('');
       expect(config.notion.databaseId).toBe('');
       expect(config.analysis.sourceDir).toBe('./src');
       expect(config.analysis.docsDir).toBe('./notionDocs');
-    });
-
-    it('should use environment variables when set', () => {
-      process.env['NOTION_API_KEY'] = 'env-api-key';
-      process.env['NOTION_DATABASE_ID'] = 'env-db-id';
-      process.env['SOURCE_DIR'] = './custom-src';
-      process.env['DOCS_DIR'] = './custom-docs';
-
-      const config = resolveConfig();
-
-      expect(config.notion.apiKey).toBe('env-api-key');
-      expect(config.notion.databaseId).toBe('env-db-id');
-      expect(config.analysis.sourceDir).toBe('./custom-src');
-      expect(config.analysis.docsDir).toBe('./custom-docs');
-    });
-
-    it('should prioritize CLI options over environment variables', () => {
-      process.env['NOTION_API_KEY'] = 'env-key';
-      process.env['SOURCE_DIR'] = './env-src';
-
-      const config = resolveConfig({
-        apiKey: 'cli-key',
-        sourceDir: './cli-src',
-      });
-
-      expect(config.notion.apiKey).toBe('cli-key');
-      expect(config.analysis.sourceDir).toBe('./cli-src');
     });
 
     it('should load values from config file', () => {
@@ -75,10 +36,6 @@ describe('config', () => {
         })
       );
 
-      delete process.env['NOTION_API_KEY'];
-      delete process.env['NOTION_DATABASE_ID'];
-      delete process.env['SOURCE_DIR'];
-
       const config = resolveConfig();
 
       expect(config.notion.apiKey).toBe('file-key');
@@ -86,34 +43,54 @@ describe('config', () => {
       expect(config.analysis.sourceDir).toBe('./file-src');
     });
 
-    it('should prioritize env vars over config file values', () => {
+    it('should load exclude patterns from config file', () => {
       mockExistsSync.mockReturnValue(true);
       mockReadFileSync.mockReturnValue(
         JSON.stringify({
-          notionApiKey: 'file-key',
+          excludePatterns: ['custom/**'],
         })
       );
-
-      process.env['NOTION_API_KEY'] = 'env-key';
 
       const config = resolveConfig();
 
-      expect(config.notion.apiKey).toBe('env-key');
+      expect(config.analysis.excludePatterns).toEqual(['custom/**']);
     });
 
-    it('should prioritize CLI options over both env and file', () => {
-      mockExistsSync.mockReturnValue(true);
-      mockReadFileSync.mockReturnValue(
-        JSON.stringify({
-          notionApiKey: 'file-key',
-        })
-      );
+    it('should use default exclude patterns when not in config file', () => {
+      const config = resolveConfig();
 
-      process.env['NOTION_API_KEY'] = 'env-key';
+      expect(config.analysis.excludePatterns).toContain('node_modules/**');
+      expect(config.analysis.excludePatterns).toContain('dist/**');
+    });
 
-      const config = resolveConfig({ apiKey: 'cli-key' });
+    it('should not use environment variables for config values', () => {
+      const originalKey = process.env['NOTION_API_KEY'];
+      process.env['NOTION_API_KEY'] = 'env-key-should-be-ignored';
 
-      expect(config.notion.apiKey).toBe('cli-key');
+      const config = resolveConfig();
+
+      expect(config.notion.apiKey).toBe('');
+
+      if (originalKey !== undefined) {
+        process.env['NOTION_API_KEY'] = originalKey;
+      } else {
+        delete process.env['NOTION_API_KEY'];
+      }
+    });
+
+    it('should read NODE_ENV from environment', () => {
+      const originalNodeEnv = process.env['NODE_ENV'];
+      process.env['NODE_ENV'] = 'production';
+
+      const config = resolveConfig();
+
+      expect(config.nodeEnv).toBe('production');
+
+      if (originalNodeEnv !== undefined) {
+        process.env['NODE_ENV'] = originalNodeEnv;
+      } else {
+        delete process.env['NODE_ENV'];
+      }
     });
 
     it('should throw on malformed config file', () => {
@@ -122,37 +99,27 @@ describe('config', () => {
 
       expect(() => resolveConfig()).toThrow('Failed to parse config file');
     });
-
-    it('should use custom config path when provided', () => {
-      mockExistsSync.mockReturnValue(true);
-      mockReadFileSync.mockReturnValue(JSON.stringify({ notionApiKey: 'custom-key' }));
-
-      delete process.env['NOTION_API_KEY'];
-
-      resolveConfig({ config: '/custom/path/config.json' });
-
-      expect(mockExistsSync).toHaveBeenCalledWith('/custom/path/config.json');
-    });
   });
 
   describe('validateConfig', () => {
     it('should pass when required fields are present', () => {
-      const config = resolveConfig({ apiKey: 'key', databaseId: 'db' });
+      mockExistsSync.mockReturnValue(true);
+      mockReadFileSync.mockReturnValue(
+        JSON.stringify({ notionApiKey: 'key', notionDatabaseId: 'db' })
+      );
+
+      const config = resolveConfig();
 
       expect(() => validateConfig(config, ['notionApiKey', 'notionDatabaseId'])).not.toThrow();
     });
 
     it('should throw when notionApiKey is missing', () => {
-      delete process.env['NOTION_API_KEY'];
-
       const config = resolveConfig();
 
       expect(() => validateConfig(config, ['notionApiKey'])).toThrow('Notion API key is required');
     });
 
     it('should throw when notionDatabaseId is missing', () => {
-      delete process.env['NOTION_DATABASE_ID'];
-
       const config = resolveConfig();
 
       expect(() => validateConfig(config, ['notionDatabaseId'])).toThrow(
@@ -161,9 +128,6 @@ describe('config', () => {
     });
 
     it('should report multiple missing fields', () => {
-      delete process.env['NOTION_API_KEY'];
-      delete process.env['NOTION_DATABASE_ID'];
-
       const config = resolveConfig();
 
       expect(() => validateConfig(config, ['notionApiKey', 'notionDatabaseId'])).toThrow(

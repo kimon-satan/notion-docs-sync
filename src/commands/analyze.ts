@@ -9,13 +9,10 @@ import { readFile } from 'fs/promises';
 export interface AnalyzeOptions {
   readonly baseBranch?: string;
   readonly targetBranch?: string;
-  readonly sourceDir?: string;
-  readonly docsDir?: string;
-  readonly config?: string;
 }
 
 export async function analyzeCommand(options: AnalyzeOptions): Promise<void> {
-  const config = resolveConfig(options);
+  const config = resolveConfig();
   const baseBranch = options.baseBranch ?? 'main';
   const targetBranch = options.targetBranch ?? 'HEAD';
 

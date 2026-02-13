@@ -44,9 +44,7 @@ describe('CLI', () => {
     it('should display fetch command help', () => {
       const output = runCli('fetch --help');
 
-      expect(output).toContain('--api-key');
-      expect(output).toContain('--database-id');
-      expect(output).toContain('--docs-dir');
+      expect(output).toContain('Fetch documentation from Notion');
     });
   });
 
@@ -56,8 +54,6 @@ describe('CLI', () => {
 
       expect(output).toContain('--base-branch');
       expect(output).toContain('--target-branch');
-      expect(output).toContain('--source-dir');
-      expect(output).toContain('--docs-dir');
     });
   });
 

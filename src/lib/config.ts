@@ -32,18 +32,8 @@ interface FileConfig {
   readonly excludePatterns?: string[];
 }
 
-export interface CliOptions {
-  readonly apiKey?: string;
-  readonly databaseId?: string;
-  readonly sourceDir?: string;
-  readonly docsDir?: string;
-  readonly config?: string;
-  readonly baseBranch?: string;
-  readonly targetBranch?: string;
-}
-
-function loadConfigFile(configPath?: string): FileConfig {
-  const filePath = configPath ?? join(process.cwd(), CONFIG_FILENAME);
+function loadConfigFile(): FileConfig {
+  const filePath = join(process.cwd(), CONFIG_FILENAME);
 
   if (!existsSync(filePath)) {
     return {};
@@ -57,33 +47,23 @@ function loadConfigFile(configPath?: string): FileConfig {
   }
 }
 
-function getEnvVar(key: string, fallback: string): string {
-  const value = process.env[key];
-  if (value !== undefined && value !== '') {
-    return value;
-  }
-  return fallback;
-}
-
-export function resolveConfig(cliOptions?: CliOptions): AppConfig {
-  const fileConfig = loadConfigFile(cliOptions?.config);
+export function resolveConfig(): AppConfig {
+  const fileConfig = loadConfigFile();
 
   return {
-    nodeEnv: getEnvVar('NODE_ENV', 'development'),
+    nodeEnv: process.env['NODE_ENV'] ?? 'development',
     notion: {
-      apiKey: cliOptions?.apiKey ?? getEnvVar('NOTION_API_KEY', fileConfig.notionApiKey ?? ''),
-      databaseId:
-        cliOptions?.databaseId ??
-        getEnvVar('NOTION_DATABASE_ID', fileConfig.notionDatabaseId ?? ''),
+      apiKey: fileConfig.notionApiKey ?? '',
+      databaseId: fileConfig.notionDatabaseId ?? '',
     },
     github: {
-      token: getEnvVar('GITHUB_TOKEN', fileConfig.githubToken ?? ''),
-      owner: getEnvVar('GITHUB_OWNER', fileConfig.githubOwner ?? ''),
-      repo: getEnvVar('GITHUB_REPO', fileConfig.githubRepo ?? ''),
+      token: fileConfig.githubToken ?? '',
+      owner: fileConfig.githubOwner ?? '',
+      repo: fileConfig.githubRepo ?? '',
     },
     analysis: {
-      sourceDir: cliOptions?.sourceDir ?? getEnvVar('SOURCE_DIR', fileConfig.sourceDir ?? './src'),
-      docsDir: cliOptions?.docsDir ?? getEnvVar('DOCS_DIR', fileConfig.docsDir ?? './notionDocs'),
+      sourceDir: fileConfig.sourceDir ?? './src',
+      docsDir: fileConfig.docsDir ?? './notionDocs',
       excludePatterns: fileConfig.excludePatterns ?? [
         'node_modules/**',
         'dist/**',
@@ -104,14 +84,14 @@ export function validateConfig(config: AppConfig, requiredFields: string[]): voi
       case 'notionApiKey':
         if (config.notion.apiKey === '') {
           errors.push(
-            'Notion API key is required. Set via --api-key, NOTION_API_KEY env var, or config file.'
+            'Notion API key is required. Set in .notion-doc-fetcher.json. Run `notion-doc-fetcher init` to create one.'
           );
         }
         break;
       case 'notionDatabaseId':
         if (config.notion.databaseId === '') {
           errors.push(
-            'Notion database ID is required. Set via --database-id, NOTION_DATABASE_ID env var, or config file.'
+            'Notion database ID is required. Set in .notion-doc-fetcher.json. Run `notion-doc-fetcher init` to create one.'
           );
         }
         break;

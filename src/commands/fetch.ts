@@ -3,16 +3,10 @@ import { resolveConfig } from '../lib/config';
 import { NotionClient } from '../lib/notion-client';
 import { LocalDocsReader } from '../lib/local-docs-reader';
 
-export interface FetchOptions {
-  readonly apiKey?: string;
-  readonly databaseId?: string;
-  readonly docsDir?: string;
-}
-
-export async function fetchCommand(options: FetchOptions): Promise<void> {
+export async function fetchCommand(): Promise<void> {
   console.log('Starting documentation synchronization...');
 
-  const config = resolveConfig(options);
+  const config = resolveConfig();
 
   const notionClient = new NotionClient(config.notion.apiKey);
   const localDocsReader = new LocalDocsReader(config.analysis.docsDir);
