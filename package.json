@@ -1,34 +1,42 @@
 {
   "name": "notion-doc-fetcher",
-  "version": "0.1.0",
-  "description": "A prototype project for keeping Notion documentation aligned with code changes",
-  "main": "dist/index.js",
+  "version": "1.0.0",
+  "description": "CLI tool to keep Notion documentation aligned with code changes",
+  "main": "./dist/cli.js",
+  "bin": {
+    "notion-doc-fetcher": "./dist/cli.js"
+  },
+  "files": [
+    "dist/**/*.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.js.map",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "ts-node --project tsconfig.dev.json -r tsconfig-paths/register src/index.ts",
+    "dev": "ts-node src/cli.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint src/**/*.ts scripts/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts scripts/**/*.ts --fix",
-    "format": "prettier --write src/**/*.ts scripts/**/*.ts",
+    "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "format": "prettier --write src/**/*.ts",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist",
     "prepare": "husky install",
-    "script:fetch-docs": "ts-node --project tsconfig.scripts.json -r tsconfig-paths/register scripts/fetch-docs.ts",
-    "script:check-sync": "npm run script:fetch-docs"
+    "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "keywords": [
     "notion",
     "documentation",
     "sync",
-    "prototype"
+    "cli"
   ],
-  "author": "",
+  "author": "Simon Katan https://github.com/kimon-satan",
   "license": "MIT",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.6.0",
@@ -47,6 +55,7 @@
   },
   "dependencies": {
     "@notionhq/client": "^2.2.13",
+    "commander": "^12.0.0",
     "dotenv": "^16.3.1"
   }
 }

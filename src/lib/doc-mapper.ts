@@ -1,10 +1,10 @@
-import { DocumentationFile } from '../types/doc-sync.js';
+import { DocumentationFile } from '../types/doc-sync';
 
 /**
  * Maps documentation files to relevant code files using content analysis and heuristics
  */
 export class DocMapper {
-  private mappingCache: Map<string, string[]> = new Map();
+  private readonly mappingCache: Map<string, string[]> = new Map();
 
   /**
    * Scans documentation content for explicit file path references
@@ -75,7 +75,7 @@ export class DocMapper {
 
     // Handle relative paths starting with ./
     if (path.startsWith('./')) {
-      return path.length > 2 && /^\.\/[a-zA-Z0-9._/\-]+$/.test(path);
+      return path.length > 2 && /^\.\/[a-zA-Z0-9._/-]+$/.test(path);
     }
 
     // Should not be just a file extension like ".js"
@@ -84,7 +84,7 @@ export class DocMapper {
     }
 
     // Should contain path-like characters
-    return /^[a-zA-Z0-9._/\-]+$/.test(path);
+    return /^[a-zA-Z0-9._/-]+$/.test(path);
   }
 
   /**
@@ -160,7 +160,7 @@ export class DocMapper {
 
     // Extract the base name from the doc file (e.g., 'doc-mapper' from 'docs/doc-mapper.md')
     const docBaseName = this.extractBaseName(docFilePath);
-    if (!docBaseName) {
+    if (docBaseName === null) {
       return matches;
     }
 
@@ -169,7 +169,7 @@ export class DocMapper {
 
     for (const codeFile of availableCodeFiles) {
       const codeBaseName = this.extractBaseName(codeFile);
-      if (!codeBaseName) {
+      if (codeBaseName === null) {
         continue;
       }
 
@@ -194,9 +194,9 @@ export class DocMapper {
    */
   private extractBaseName(filePath: string): string | null {
     const parts = filePath.split('/');
-    const fileName = parts[parts.length - 1];
+    const fileName = parts[parts.length - 1] ?? '';
     const nameWithoutExt = fileName.split('.')[0];
-    return nameWithoutExt || null;
+    return nameWithoutExt !== undefined && nameWithoutExt !== '' ? nameWithoutExt : null;
   }
 
   /**
@@ -319,7 +319,7 @@ export class DocMapper {
     // Medium confidence: Function name matches with code file name (0.5-0.6)
     const functionNames = this.extractFunctionNameReferences(docFile.content);
     const codeBaseName = this.extractBaseName(codeFile);
-    if (codeBaseName) {
+    if (codeBaseName !== null) {
       for (const funcName of functionNames) {
         const funcLower = funcName.toLowerCase();
         const codeLower = codeBaseName.toLowerCase();

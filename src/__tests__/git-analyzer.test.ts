@@ -1,14 +1,11 @@
+/* eslint-disable @typescript-eslint/await-thenable */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { readFileSync } from 'fs';
 import * as childProcess from 'child_process';
 import { GitAnalyzer } from '../lib/git-analyzer';
 
 // Mock child_process for git commands
 vi.mock('child_process');
 const mockExecSync = vi.mocked(childProcess.execSync);
-
-// Mock fs for reading fixture files
-vi.mock('fs');
 
 describe('GitAnalyzer', () => {
   let gitAnalyzer: GitAnalyzer;
@@ -75,10 +72,11 @@ describe('GitAnalyzer', () => {
 
       const changes = await gitAnalyzer.getCodeChanges('main', 'develop');
 
-      expect(mockExecSync).toHaveBeenCalledWith('git diff --name-status main..develop', {
-        encoding: 'utf8',
-        cwd: expect.any(String),
-      });
+      expect(mockExecSync).toHaveBeenCalledWith(
+        'git diff --name-status main..develop',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        { encoding: 'utf8', cwd: expect.any(String) }
+      );
 
       expect(changes).toHaveLength(3);
       expect(changes.map((c) => c.changeType)).toEqual(['modified', 'added', 'deleted']);
@@ -172,48 +170,48 @@ index 1234567..abcdefg 100644
   });
 
   describe('error handling', () => {
-    it('should handle non-existent branches gracefully', async () => {
+    it('should handle non-existent branches gracefully', () => {
       mockExecSync.mockImplementationOnce(() => {
         throw new Error("fatal: bad revision 'non-existent-branch'");
       });
 
-      await expect(gitAnalyzer.getCodeChanges('main', 'non-existent-branch')).rejects.toThrow(
+      expect(() => gitAnalyzer.getCodeChanges('main', 'non-existent-branch')).toThrow(
         "Branch 'non-existent-branch' does not exist"
       );
     });
 
-    it('should handle git command failures gracefully', async () => {
+    it('should handle git command failures gracefully', () => {
       mockExecSync.mockImplementationOnce(() => {
         throw new Error('fatal: not a git repository');
       });
 
-      await expect(gitAnalyzer.getCodeChanges('main', 'feature')).rejects.toThrow(
+      expect(() => gitAnalyzer.getCodeChanges('main', 'feature')).toThrow(
         'Git repository not found or not initialized'
       );
     });
 
-    it('should validate git repository state', async () => {
+    it('should validate git repository state', () => {
       mockExecSync.mockImplementationOnce(() => {
         throw new Error("fatal: your current branch 'main' does not have any commits yet");
       });
 
-      await expect(gitAnalyzer.getCodeChanges('main', 'feature')).rejects.toThrow(
+      expect(() => gitAnalyzer.getCodeChanges('main', 'feature')).toThrow(
         'Repository has no commits'
       );
     });
 
-    it('should handle empty diff output', async () => {
+    it('should handle empty diff output', () => {
       mockExecSync.mockReturnValueOnce(Buffer.from(''));
 
-      const changes = await gitAnalyzer.getCodeChanges('main', 'feature');
+      const changes = gitAnalyzer.getCodeChanges('main', 'feature');
 
       expect(changes).toEqual([]);
     });
 
-    it('should handle malformed git status output', async () => {
+    it('should handle malformed git status output', () => {
       mockExecSync.mockReturnValueOnce(Buffer.from('invalid-status-line\n'));
 
-      await expect(gitAnalyzer.getCodeChanges('main', 'feature')).rejects.toThrow(
+      expect(() => gitAnalyzer.getCodeChanges('main', 'feature')).toThrow(
         'Failed to parse git status output'
       );
     });

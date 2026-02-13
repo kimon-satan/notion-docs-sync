@@ -48,3 +48,6 @@ yarn.lock
 
 # Husky
 .husky/_
+
+# CLI config
+.notion-doc-fetcher.json
