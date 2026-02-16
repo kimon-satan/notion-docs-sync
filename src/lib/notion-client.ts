@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
-import { Client, isFullPage, isFullBlock } from '@notionhq/client';
+import { Client, isFullPage } from '@notionhq/client';
 import type {
   PageObjectResponse,
-  BlockObjectResponse,
   RichTextItemResponse,
+  BlockObjectRequest,
 } from '@notionhq/client/build/src/api-endpoints';
+import { NotionMdConverter } from './notion-md-converter';
 
 export interface NotionDoc {
   readonly id: string;
@@ -18,9 +19,15 @@ export interface NotionDoc {
 
 export class NotionClient {
   private readonly client: Client;
+  private readonly mdConverter: NotionMdConverter;
 
   constructor(apiKey: string) {
     this.client = new Client({ auth: apiKey });
+    this.mdConverter = new NotionMdConverter(this.client);
+  }
+
+  getClient(): Client {
+    return this.client;
   }
 
   async fetchAllDocs(databaseId: string): Promise<NotionDoc[]> {
@@ -66,6 +73,55 @@ export class NotionClient {
     }
 
     return docs;
+  }
+
+  async fetchPageLastEdited(pageId: string): Promise<Date> {
+    const page = await this.client.pages.retrieve({ page_id: pageId });
+    if (!isFullPage(page)) {
+      throw new Error(`Page ${pageId} is not a full page`);
+    }
+    return new Date(page.last_edited_time);
+  }
+
+  async replacePageContent(pageId: string, blocks: BlockObjectRequest[]): Promise<void> {
+    const existingBlocks = await this.listAllChildBlocks(pageId);
+
+    for (const block of existingBlocks) {
+      await this.client.blocks.delete({ block_id: block.id });
+    }
+
+    const batchSize = 100;
+    for (let i = 0; i < blocks.length; i += batchSize) {
+      const batch = blocks.slice(i, i + batchSize);
+      await this.client.blocks.children.append({
+        block_id: pageId,
+        children: batch,
+      });
+    }
+  }
+
+  private async listAllChildBlocks(blockId: string): Promise<Array<{ id: string }>> {
+    const allBlocks: Array<{ id: string }> = [];
+    let cursor: string | undefined;
+
+    do {
+      const response = await this.client.blocks.children.list({
+        block_id: blockId,
+        start_cursor: cursor,
+      });
+
+      for (const block of response.results) {
+        allBlocks.push({ id: block.id });
+      }
+
+      if (response.has_more && response.next_cursor !== null) {
+        cursor = response.next_cursor;
+      } else {
+        cursor = undefined;
+      }
+    } while (cursor !== undefined);
+
+    return allBlocks;
   }
 
   private async parseNotionPage(page: PageObjectResponse): Promise<NotionDoc | null> {
@@ -131,203 +187,11 @@ export class NotionClient {
 
   private async fetchPageContent(pageId: string): Promise<string> {
     try {
-      const response = await this.client.blocks.children.list({
-        block_id: pageId,
-      });
-
-      let content = '';
-
-      for (const block of response.results) {
-        if (isFullBlock(block)) {
-          content += this.extractBlockText(block) + '\n';
-        }
-      }
-
-      return content.trim();
+      return await this.mdConverter.pageToMarkdown(pageId);
     } catch (error) {
       console.warn(`Failed to fetch content for page ${pageId}:`, error);
       return '';
     }
-  }
-
-  private extractBlockText(block: BlockObjectResponse): string {
-    switch (block.type) {
-      case 'paragraph':
-        return this.extractRichText(block.paragraph.rich_text);
-      case 'heading_1':
-        return `# ${this.extractRichText(block.heading_1.rich_text)}`;
-      case 'heading_2':
-        return `## ${this.extractRichText(block.heading_2.rich_text)}`;
-      case 'heading_3':
-        return `### ${this.extractRichText(block.heading_3.rich_text)}`;
-      case 'bulleted_list_item':
-        return `- ${this.extractRichText(block.bulleted_list_item.rich_text)}`;
-      case 'numbered_list_item':
-        return `1. ${this.extractRichText(block.numbered_list_item.rich_text)}`;
-      case 'to_do': {
-        const checked = block.to_do.checked ? '[x]' : '[ ]';
-        return `${checked} ${this.extractRichText(block.to_do.rich_text)}`;
-      }
-      case 'quote':
-        return `> ${this.extractRichText(block.quote.rich_text)}`;
-      case 'callout': {
-        const icon = block.callout.icon?.type === 'emoji' ? block.callout.icon.emoji : '💡';
-        return `${icon} ${this.extractRichText(block.callout.rich_text)}`;
-      }
-      case 'code': {
-        const language = block.code.language ?? '';
-        const codeText = this.extractRichText(block.code.rich_text);
-        return `\`\`\`${language}\n${codeText}\n\`\`\``;
-      }
-      case 'divider':
-        return '---';
-      case 'bookmark': {
-        const bookmarkUrl = block.bookmark.url;
-        return bookmarkUrl ? `[${bookmarkUrl}](${bookmarkUrl})` : '';
-      }
-      case 'link_preview': {
-        const linkUrl = block.link_preview.url;
-        return linkUrl ? `[${linkUrl}](${linkUrl})` : '';
-      }
-      case 'embed': {
-        const embedUrl = block.embed.url;
-        if (embedUrl) {
-          const embedLabel = this.getEmbedLabel(embedUrl);
-          return `**${embedLabel}**: [${embedUrl}](${embedUrl})`;
-        }
-        return '';
-      }
-      case 'image': {
-        const imageUrl =
-          block.image.type === 'file' ? block.image.file.url : block.image.external.url;
-        const caption = this.extractRichText(block.image.caption);
-        return imageUrl ? `![${caption}](${imageUrl})` : '';
-      }
-      case 'video': {
-        const videoUrl =
-          block.video.type === 'file' ? block.video.file.url : block.video.external.url;
-        const videoCaption = this.extractRichText(block.video.caption);
-        return videoUrl ? `**Video**: [${videoCaption || 'Watch Video'}](${videoUrl})` : '';
-      }
-      case 'file': {
-        const fileUrl = block.file.type === 'file' ? block.file.file.url : block.file.external.url;
-        const fileName = block.file.name ?? 'Download File';
-        return fileUrl ? `**File**: [${fileName}](${fileUrl})` : '';
-      }
-      case 'pdf': {
-        const pdfUrl = block.pdf.type === 'file' ? block.pdf.file.url : block.pdf.external.url;
-        const pdfCaption = this.extractRichText(block.pdf.caption);
-        return pdfUrl ? `**PDF**: [${pdfCaption || 'View PDF'}](${pdfUrl})` : '';
-      }
-      default:
-        return '';
-    }
-  }
-
-  private getEmbedLabel(url: string): string {
-    const domain = this.extractDomain(url);
-
-    switch (domain) {
-      case 'miro.com':
-        return 'Miro Board';
-      case 'figma.com':
-        return 'Figma Design';
-      case 'youtube.com':
-      case 'youtu.be':
-        return 'YouTube Video';
-      case 'vimeo.com':
-        return 'Vimeo Video';
-      case 'loom.com':
-        return 'Loom Recording';
-      case 'spotify.com':
-        return 'Spotify';
-      case 'soundcloud.com':
-        return 'SoundCloud';
-      case 'twitter.com':
-      case 'x.com':
-        return 'Tweet';
-      case 'instagram.com':
-        return 'Instagram Post';
-      case 'linkedin.com':
-        return 'LinkedIn Post';
-      case 'github.com':
-        return 'GitHub';
-      case 'codepen.io':
-        return 'CodePen';
-      case 'jsfiddle.net':
-        return 'JSFiddle';
-      case 'replit.com':
-        return 'Repl.it';
-      case 'codesandbox.io':
-        return 'CodeSandbox';
-      case 'airtable.com':
-        return 'Airtable';
-      case 'typeform.com':
-        return 'Typeform';
-      case 'calendly.com':
-        return 'Calendly';
-      case 'maps.google.com':
-      case 'goo.gl/maps':
-        return 'Google Maps';
-      default:
-        return 'Embedded Content';
-    }
-  }
-
-  private extractDomain(url: string): string {
-    try {
-      const urlObj = new URL(url);
-      return urlObj.hostname.replace('www.', '');
-    } catch {
-      return '';
-    }
-  }
-
-  private extractRichText(richText: RichTextItemResponse[]): string {
-    if (!Array.isArray(richText)) {
-      return '';
-    }
-
-    return richText
-      .map((textObj) => {
-        let text = textObj.plain_text ?? '';
-
-        if (textObj.href !== null) {
-          let linkUrl = textObj.href;
-
-          if (linkUrl.startsWith('/')) {
-            const pageId = linkUrl.replace(/^\//, '').split('?')[0] ?? '';
-            linkUrl = `https://www.notion.so/${pageId}`;
-          }
-
-          text = `[${text}](${linkUrl})`;
-        }
-
-        const { bold, italic, strikethrough, underline, code } = textObj.annotations;
-
-        if (code) {
-          text = `\`${text}\``;
-        }
-
-        if (bold) {
-          text = `**${text}**`;
-        }
-
-        if (italic) {
-          text = `*${text}*`;
-        }
-
-        if (strikethrough) {
-          text = `~~${text}~~`;
-        }
-
-        if (underline) {
-          text = `<u>${text}</u>`;
-        }
-
-        return text;
-      })
-      .join('');
   }
 
   async updateSyncStatus(pageId: string, status: string): Promise<void> {

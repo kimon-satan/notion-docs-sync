@@ -64,4 +64,21 @@ describe('CLI', () => {
       expect(output).toContain('config file');
     });
   });
+
+  describe('sync --help', () => {
+    it('should display sync command help', () => {
+      const output = runCli('sync --help');
+
+      expect(output).toContain('Bidirectional sync');
+      expect(output).toContain('--dry-run');
+    });
+  });
+
+  describe('stamp --help', () => {
+    it('should display stamp command help', () => {
+      const output = runCli('stamp --help');
+
+      expect(output).toContain('timestamps');
+    });
+  });
 });

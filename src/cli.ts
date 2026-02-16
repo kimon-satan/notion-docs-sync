@@ -4,6 +4,8 @@ import { Command } from 'commander';
 import { fetchCommand } from './commands/fetch';
 import { analyzeCommand } from './commands/analyze';
 import { initCommand } from './commands/init';
+import { syncCommand } from './commands/sync';
+import { stampCommand } from './commands/stamp';
 
 const program = new Command();
 
@@ -44,6 +46,31 @@ program
   .action(() => {
     try {
       initCommand();
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('sync')
+  .description('Bidirectional sync between local docs and Notion')
+  .option('--dry-run', 'Preview sync actions without making changes')
+  .action(async (options: { dryRun?: boolean }) => {
+    try {
+      await syncCommand(options);
+    } catch (error) {
+      console.error('Error:', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('stamp')
+  .description('Update timestamps on locally modified documentation files')
+  .action(async () => {
+    try {
+      await stampCommand();
     } catch (error) {
       console.error('Error:', error instanceof Error ? error.message : error);
       process.exit(1);

@@ -1,6 +1,8 @@
 import { readdir, readFile, writeFile } from 'fs/promises';
 import { join, extname } from 'path';
 import { NotionDoc } from './notion-client';
+import type { LocalDocMetadata } from '../types/doc-sync';
+import { parseTimestamp, formatTimestamp, replaceTimestampInContent } from './timestamp-utils';
 
 export interface LocalDocFile {
   readonly filePath: string;
@@ -123,7 +125,7 @@ export class LocalDocsReader {
       lines.push('');
     }
 
-    lines.push(`*Last updated: ${notionDoc.lastModified.toISOString().split('T')[0]}*`);
+    lines.push(`*Last updated: ${formatTimestamp(notionDoc.lastModified)}*`);
     lines.push('');
 
     if (notionDoc.tags.length > 0) {
@@ -138,5 +140,58 @@ export class LocalDocsReader {
     }
 
     return lines.join('\n') + '\n';
+  }
+
+  extractTimestamp(content: string): Date | null {
+    return parseTimestamp(content);
+  }
+
+  extractBodyContent(content: string): string {
+    const lines = content.split('\n');
+    const filtered = lines.filter((line) => {
+      if (/pageId=/i.test(line)) return false;
+      if (/^#\s/.test(line)) return false;
+      if (/^\*Last updated:/.test(line)) return false;
+      if (/^\*\*Tags:\*\*/.test(line)) return false;
+      return true;
+    });
+
+    return filtered.join('\n').replace(/^\n+/, '').replace(/\n+$/, '').trim();
+  }
+
+  async readFullDoc(localDoc: LocalDocFile): Promise<LocalDocMetadata> {
+    const rawContent = await readFile(localDoc.filePath, 'utf-8');
+    const lastUpdated = this.extractTimestamp(rawContent);
+    const bodyContent = this.extractBodyContent(rawContent);
+    const title = this.extractTitleFromContent(rawContent);
+    const tags = this.extractTagsFromContent(rawContent);
+
+    return {
+      pageId: localDoc.pageId,
+      title,
+      lastUpdated,
+      tags,
+      bodyContent,
+      rawContent,
+      filePath: localDoc.filePath,
+      fileName: localDoc.fileName,
+    };
+  }
+
+  async updateTimestampOnly(filePath: string, newDate: Date): Promise<void> {
+    const content = await readFile(filePath, 'utf-8');
+    const updated = replaceTimestampInContent(content, newDate);
+    await writeFile(filePath, updated, 'utf-8');
+  }
+
+  private extractTitleFromContent(content: string): string {
+    const match = content.match(/^#\s+(.+)$/m);
+    return match?.[1]?.trim() ?? '';
+  }
+
+  private extractTagsFromContent(content: string): string[] {
+    const match = content.match(/^\*\*Tags:\*\*\s*(.+)$/m);
+    if (match?.[1] === undefined || match[1] === '') return [];
+    return match[1].split(',').map((tag) => tag.trim());
   }
 }
