@@ -51,6 +51,13 @@ describe('timestamp-utils', () => {
 
       expect(result).toEqual(new Date('2026-01-15T10:00:00.000Z'));
     });
+
+    it('should parse underscore-delimited timestamp (notion-to-md format)', () => {
+      const content = '_Last updated: 2026-02-16T14:30:00.000Z_';
+      const result = parseTimestamp(content);
+
+      expect(result).toEqual(new Date('2026-02-16T14:30:00.000Z'));
+    });
   });
 
   describe('formatTimestamp', () => {
@@ -101,6 +108,15 @@ describe('timestamp-utils', () => {
 
     it('should replace ISO 8601 timestamp', () => {
       const content = '*Last updated: 2026-01-01T00:00:00.000Z*';
+      const newDate = new Date('2026-02-16T14:30:00.000Z');
+
+      const result = replaceTimestampInContent(content, newDate);
+
+      expect(result).toBe('*Last updated: 2026-02-16T14:30:00.000Z*');
+    });
+
+    it('should replace underscore-delimited timestamp', () => {
+      const content = '_Last updated: 2025-09-08T14:55:00.000Z_';
       const newDate = new Date('2026-02-16T14:30:00.000Z');
 
       const result = replaceTimestampInContent(content, newDate);

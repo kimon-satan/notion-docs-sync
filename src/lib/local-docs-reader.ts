@@ -151,7 +151,7 @@ export class LocalDocsReader {
     const filtered = lines.filter((line) => {
       if (/pageId=/i.test(line)) return false;
       if (/^#\s/.test(line)) return false;
-      if (/^\*Last updated:/.test(line)) return false;
+      if (/^[*_]Last updated:/.test(line)) return false;
       if (/^\*\*Tags:\*\*/.test(line)) return false;
       return true;
     });

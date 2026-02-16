@@ -1,6 +1,6 @@
 import type { SyncDirection } from '../types/doc-sync';
 
-const TIMESTAMP_REGEX = /\*Last updated:\s*(.+?)\*/;
+const TIMESTAMP_REGEX = /[*_]Last updated:\s*(.+?)[*_]/;
 
 export function parseTimestamp(content: string): Date | null {
   const match = content.match(TIMESTAMP_REGEX);
