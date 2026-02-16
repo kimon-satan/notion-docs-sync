@@ -1,130 +1,202 @@
-# NotionDocFetcher
+# notion-doc-fetcher
 
-A prototype project for keeping Notion documentation aligned with code changes in a codebase.
+A CLI tool that keeps Notion documentation aligned with code changes. It fetches Notion pages as local Markdown, detects git changes, maps them to relevant docs, and supports bidirectional sync between local files and Notion.
 
 ## Prerequisites
 
-- Node.js 22.x (use nvm to automatically switch to the correct version)
-- npm or yarn
+- Node.js >= 18.0.0 (22.x recommended — use `nvm use` to auto-switch)
+- npm
+- A [Notion integration](https://developers.notion.com/) with access to your documentation pages
 
-## Setup
+## Quick Start
 
-1. **Use the correct Node.js version:**
+```bash
+# Install globally from npm
+npm install -g notion-doc-fetcher
 
-   ```bash
-   nvm use
-   ```
+# Initialise config in your project
+notion-doc-fetcher init
 
-2. **Install dependencies:**
+# Edit .notion-doc-fetcher.json with your Notion API key and database ID
 
-   ```bash
-   npm install
-   ```
+# Fetch docs from Notion
+notion-doc-fetcher fetch
+```
 
-3. **Set up environment variables:**
+## CLI Commands
 
-   ```bash
-   cp .env.example .env
-   # Edit .env with your actual API keys and configuration
-   ```
+### `notion-doc-fetcher init`
 
-4. **Set up git hooks:**
-   ```bash
-   npm run prepare
-   ```
+Creates a `.notion-doc-fetcher.json` config file in the current directory with default settings. Edit this file to add your Notion API key and database ID.
 
-## Development
+### `notion-doc-fetcher fetch`
 
-### Available Scripts
+Fetches documentation pages from Notion and saves/updates them as local Markdown files in the configured docs directory (default: `./notionDocs`). Pages are matched by the page IDs stored in each local file's frontmatter.
 
-- `npm run dev` - Start development server with hot reload
-- `npm run build` - Build the project for production
-- `npm start` - Start the production build
-- `npm test` - Run tests
-- `npm run test:watch` - Run tests in watch mode
-- `npm run test:coverage` - Run tests with coverage report
-- `npm run lint` - Run ESLint
-- `npm run lint:fix` - Fix ESLint issues automatically
-- `npm run format` - Format code with Prettier
-- `npm run type-check` - Run TypeScript type checking
-- `npm run clean` - Clean build directory
+### `notion-doc-fetcher analyze`
 
-### Project Structure
+Analyses git changes between two branches and maps them to documentation files using heuristic matching with confidence scores.
+
+```bash
+notion-doc-fetcher analyze                              # compare main..HEAD
+notion-doc-fetcher analyze --base-branch develop        # custom base branch
+notion-doc-fetcher analyze --target-branch feature/foo  # custom target branch
+```
+
+### `notion-doc-fetcher sync`
+
+Bidirectional sync between local docs and Notion. Compares timestamps to determine whether each file should be pulled from Notion or pushed to Notion.
+
+```bash
+notion-doc-fetcher sync            # execute sync
+notion-doc-fetcher sync --dry-run  # preview actions without making changes
+```
+
+### `notion-doc-fetcher stamp`
+
+Updates the `lastUpdated` timestamp in the frontmatter of any locally modified Markdown files (detected via `git status`). Useful before pushing changes to Notion.
+
+## Configuration
+
+Configuration is read from `.notion-doc-fetcher.json` in the project root. Run `notion-doc-fetcher init` to generate one.
+
+```json
+{
+  "notionApiKey": "",
+  "notionDatabaseId": "",
+  "sourceDir": "./src",
+  "docsDir": "./notionDocs",
+  "excludePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/__tests__/**",
+    ".git/**"
+  ]
+}
+```
+
+| Field | Description | Default |
+|---|---|---|
+| `notionApiKey` | Notion integration API key | — |
+| `notionDatabaseId` | Target Notion database ID | — |
+| `sourceDir` | Source code directory to analyse | `./src` |
+| `docsDir` | Local docs directory | `./notionDocs` |
+| `excludePatterns` | Glob patterns to exclude from analysis | See above |
+
+### Setting up Notion
+
+1. Go to [Notion Developers](https://developers.notion.com/) and create a new integration.
+2. Copy the integration token into `notionApiKey` in your config file.
+3. Share your documentation database/pages with the integration.
+4. Copy the database ID into `notionDatabaseId`.
+
+## Repository Structure
 
 ```
 src/
-├── api/                # API integration layer
-│   ├── notion/         # Notion API client
-│   └── github/         # GitHub API client
-├── core/               # Core business logic
-│   ├── sync/           # Synchronization engine
-│   ├── parser/         # Code parsing utilities
-│   └── matcher/        # Doc-code matching logic
-├── models/             # Data models and types
-├── utils/              # Pure utility functions
-├── config/             # Configuration management
-└── __tests__/          # Test files mirror src structure
+├── cli.ts                          # CLI entry point (commander)
+├── commands/
+│   ├── fetch.ts                    # fetch command
+│   ├── analyze.ts                  # analyze command
+│   ├── init.ts                     # init command
+│   ├── sync.ts                     # sync command
+│   └── stamp.ts                    # stamp command
+├── lib/
+│   ├── config.ts                   # Config loading and validation
+│   ├── notion-client.ts            # Notion API wrapper
+│   ├── local-docs-reader.ts        # Local Markdown file reader/writer
+│   ├── doc-mapper.ts               # Doc-to-code mapping with confidence scores
+│   ├── git-analyzer.ts             # Git diff extraction between branches
+│   ├── md-to-notion-converter.ts   # Markdown to Notion block converter
+│   ├── notion-md-converter.ts      # Notion to Markdown converter
+│   └── timestamp-utils.ts          # Timestamp comparison utilities
+├── types/
+│   └── doc-sync.ts                 # TypeScript interfaces and types
+└── __tests__/                      # Tests (mirrors src structure)
 ```
 
-### Development Rules
-
-This project follows strict development rules outlined in `RULES.md`:
-
-- **Test-Driven Development (TDD)** - Always write tests first
-- **Single Responsibility Principle** - One file, one responsibility
-- **90% code coverage minimum**
-- **TypeScript strict mode**
-- **No `any` types allowed**
-
-## Testing
-
-Tests are written using Vitest and follow the AAA pattern (Arrange, Act, Assert).
+## Local Development
 
 ```bash
-# Run all tests
-npm test
+# Clone the repo
+git clone <repo-url>
+cd NotionDocFetcher
 
-# Run tests in watch mode
-npm run test:watch
+# Use the correct Node version
+nvm use
 
-# Generate coverage report
-npm run test:coverage
+# Install dependencies
+npm install
+
+# Run in development mode (via ts-node)
+npm run dev -- fetch
+npm run dev -- analyze --base-branch main
+npm run dev -- sync --dry-run
+
+# Build
+npm run build
+
+# Run the built CLI
+node dist/cli.js fetch
 ```
 
-## Environment Variables
+### Available Scripts
 
-Required environment variables (see `.env.example`):
+| Script | Description |
+|---|---|
+| `npm run build` | Compile TypeScript to `dist/` |
+| `npm run dev` | Run via ts-node (pass CLI args after `--`) |
+| `npm test` | Run all tests once |
+| `npm run test:watch` | Run tests in watch mode |
+| `npm run test:coverage` | Coverage report (90% threshold enforced) |
+| `npm run lint` | ESLint |
+| `npm run lint:fix` | Auto-fix lint issues |
+| `npm run format` | Prettier formatting |
+| `npm run type-check` | TypeScript type check without emit |
+| `npm run clean` | Remove `dist/` |
 
-- `NODE_ENV` - Environment (development/production/test)
-- `PORT` - Application port
-- `NOTION_API_KEY` - Your Notion integration API key
-- `NOTION_DATABASE_ID` - Target Notion database ID
-- `GITHUB_TOKEN` - GitHub personal access token
-- `GITHUB_OWNER` - GitHub username or organization
-- `GITHUB_REPO` - Repository name
+### Running a Single Test File
 
-## API Keys Setup
+```bash
+npx vitest run src/__tests__/doc-mapper.test.ts
+```
 
-### Notion API
+## Deployment
 
-1. Go to [Notion Developers](https://developers.notion.com/)
-2. Create a new integration
-3. Copy the API key to your `.env` file
-4. Share your database with the integration
+### Publishing to npm
 
-### GitHub API
+The package is configured for npm publishing with the binary name `notion-doc-fetcher`.
 
-1. Go to GitHub Settings > Developer settings > Personal access tokens
-2. Generate a new token with repo permissions
-3. Copy the token to your `.env` file
+```bash
+# Build, test, and publish (prepublishOnly runs automatically)
+npm publish
 
-## Contributing
+# Or step by step:
+npm run clean
+npm run build
+npm test
+npm publish
+```
 
-1. Follow the development rules in `RULES.md`
-2. Write tests first (TDD)
-3. Ensure all tests pass and coverage is above 90%
-4. Run linting and formatting before committing
-5. Use conventional commit messages
+The published package includes only the compiled JavaScript (`dist/`), type declarations, README, and LICENSE.
+
+### Installing from npm
+
+Once published, users install it globally:
+
+```bash
+npm install -g notion-doc-fetcher
+notion-doc-fetcher --help
+```
+
+Or use it as a project-local dev dependency:
+
+```bash
+npm install --save-dev notion-doc-fetcher
+npx notion-doc-fetcher fetch
+```
 
 ## License
 
