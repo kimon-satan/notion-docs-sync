@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-NotionDocFetcher is an npm CLI tool (`notion-doc-fetcher`) that keeps Notion documentation aligned with code changes. It detects code changes between git branches, maps documentation files to relevant source code, and analyzes whether docs need updating. Stages 1-2 (git analysis, doc mapping) are complete; Stages 3-4 (LLM integration, reporting) are planned.
+NotionDocFetcher is an npm CLI tool (`notion-doc-sync`) that keeps Notion documentation aligned with code changes. It detects code changes between git branches, maps documentation files to relevant source code, and analyzes whether docs need updating. Stages 1-2 (git analysis, doc mapping) are complete; Stages 3-4 (LLM integration, reporting) are planned.
 
 ## Commands
 
@@ -25,9 +25,9 @@ Run a single test file: `npx vitest run src/__tests__/doc-mapper.test.ts`
 ### CLI Usage
 
 ```bash
-notion-doc-fetcher fetch     # Fetch docs from Notion, save locally
-notion-doc-fetcher analyze   # Analyze git changes, map to docs
-notion-doc-fetcher init      # Create .notion-doc-fetcher.json config
+notion-doc-sync fetch     # Fetch docs from Notion, save locally
+notion-doc-sync analyze   # Analyze git changes, map to docs
+notion-doc-sync init      # Create .notion-doc-sync.json config
 ```
 
 ## Architecture
@@ -37,7 +37,7 @@ All source code lives in `src/`:
 - **`src/cli.ts`** — CLI entry point with commander. Registers `fetch`, `analyze`, `init` commands.
 - **`src/commands/fetch.ts`** — Fetch command: pulls Notion docs and updates local files.
 - **`src/commands/analyze.ts`** — Analyze command: git diff + doc mapping + confidence report.
-- **`src/commands/init.ts`** — Init command: writes default `.notion-doc-fetcher.json`.
+- **`src/commands/init.ts`** — Init command: writes default `.notion-doc-sync.json`.
 - **`src/lib/config.ts`** — Configuration with priority chain: CLI flags > env vars > config file > defaults. Exports `resolveConfig()`, `validateConfig()`, `getDefaultConfig()`.
 - **`src/lib/notion-client.ts`** — Notion API wrapper. Fetches pages, parses blocks to Markdown, extracts metadata.
 - **`src/lib/local-docs-reader.ts`** — Reads/writes markdown files in `notionDocs/`. Extracts page IDs from frontmatter.

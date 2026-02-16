@@ -50,4 +50,4 @@ yarn.lock
 .husky/_
 
 # CLI config
-.notion-doc-fetcher.json
+.notion-doc-sync.json

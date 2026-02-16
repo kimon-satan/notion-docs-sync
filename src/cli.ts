@@ -10,7 +10,7 @@ import { stampCommand } from './commands/stamp';
 const program = new Command();
 
 program
-  .name('notion-doc-fetcher')
+  .name('notion-doc-sync')
   .description('CLI tool to keep Notion documentation aligned with code changes')
   .version('1.0.0');
 
@@ -42,7 +42,7 @@ program
 
 program
   .command('init')
-  .description('Create a .notion-doc-fetcher.json config file')
+  .description('Create a .notion-doc-sync.json config file')
   .action(() => {
     try {
       initCommand();

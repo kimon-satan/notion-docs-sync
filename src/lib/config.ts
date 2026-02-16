@@ -1,7 +1,7 @@
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-const CONFIG_FILENAME = '.notion-doc-fetcher.json';
+const CONFIG_FILENAME = '.notion-doc-sync.json';
 
 export interface AppConfig {
   readonly nodeEnv: string;
@@ -84,14 +84,14 @@ export function validateConfig(config: AppConfig, requiredFields: string[]): voi
       case 'notionApiKey':
         if (config.notion.apiKey === '') {
           errors.push(
-            'Notion API key is required. Set in .notion-doc-fetcher.json. Run `notion-doc-fetcher init` to create one.'
+            'Notion API key is required. Set in .notion-doc-sync.json. Run `notion-doc-sync init` to create one.'
           );
         }
         break;
       case 'notionDatabaseId':
         if (config.notion.databaseId === '') {
           errors.push(
-            'Notion database ID is required. Set in .notion-doc-fetcher.json. Run `notion-doc-fetcher init` to create one.'
+            'Notion database ID is required. Set in .notion-doc-sync.json. Run `notion-doc-sync init` to create one.'
           );
         }
         break;

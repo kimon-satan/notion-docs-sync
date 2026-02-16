@@ -3,7 +3,7 @@ import { writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { getDefaultConfig } from '../lib/config';
 
-const CONFIG_FILENAME = '.notion-doc-fetcher.json';
+const CONFIG_FILENAME = '.notion-doc-sync.json';
 
 export function initCommand(): void {
   const configPath = join(process.cwd(), CONFIG_FILENAME);

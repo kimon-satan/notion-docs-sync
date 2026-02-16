@@ -25,7 +25,7 @@ describe('CLI', () => {
     it('should display help information', () => {
       const output = runCli('--help');
 
-      expect(output).toContain('notion-doc-fetcher');
+      expect(output).toContain('notion-doc-sync');
       expect(output).toContain('fetch');
       expect(output).toContain('analyze');
       expect(output).toContain('init');

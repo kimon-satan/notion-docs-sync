@@ -1,4 +1,4 @@
-# notion-doc-fetcher
+# notion-doc-sync
 
 A CLI tool that keeps Notion documentation aligned with code changes. It fetches Notion pages as local Markdown, detects git changes, maps them to relevant docs, and supports bidirectional sync between local files and Notion.
 
@@ -12,53 +12,53 @@ A CLI tool that keeps Notion documentation aligned with code changes. It fetches
 
 ```bash
 # Install globally from npm
-npm install -g notion-doc-fetcher
+npm install -g notion-doc-sync
 
 # Initialise config in your project
-notion-doc-fetcher init
+notion-doc-sync init
 
-# Edit .notion-doc-fetcher.json with your Notion API key and database ID
+# Edit .notion-doc-sync.json with your Notion API key and database ID
 
 # Fetch docs from Notion
-notion-doc-fetcher fetch
+notion-doc-sync fetch
 ```
 
 ## CLI Commands
 
-### `notion-doc-fetcher init`
+### `notion-doc-sync init`
 
-Creates a `.notion-doc-fetcher.json` config file in the current directory with default settings. Edit this file to add your Notion API key and database ID.
+Creates a `.notion-doc-sync.json` config file in the current directory with default settings. Edit this file to add your Notion API key and database ID.
 
-### `notion-doc-fetcher fetch`
+### `notion-doc-sync fetch`
 
 Fetches documentation pages from Notion and saves/updates them as local Markdown files in the configured docs directory (default: `./notionDocs`). Pages are matched by the page IDs stored in each local file's frontmatter.
 
-### `notion-doc-fetcher analyze`
+### `notion-doc-sync analyze`
 
 Analyses git changes between two branches and maps them to documentation files using heuristic matching with confidence scores.
 
 ```bash
-notion-doc-fetcher analyze                              # compare main..HEAD
-notion-doc-fetcher analyze --base-branch develop        # custom base branch
-notion-doc-fetcher analyze --target-branch feature/foo  # custom target branch
+notion-doc-sync analyze                              # compare main..HEAD
+notion-doc-sync analyze --base-branch develop        # custom base branch
+notion-doc-sync analyze --target-branch feature/foo  # custom target branch
 ```
 
-### `notion-doc-fetcher sync`
+### `notion-doc-sync sync`
 
 Bidirectional sync between local docs and Notion. Compares timestamps to determine whether each file should be pulled from Notion or pushed to Notion.
 
 ```bash
-notion-doc-fetcher sync            # execute sync
-notion-doc-fetcher sync --dry-run  # preview actions without making changes
+notion-doc-sync sync            # execute sync
+notion-doc-sync sync --dry-run  # preview actions without making changes
 ```
 
-### `notion-doc-fetcher stamp`
+### `notion-doc-sync stamp`
 
 Updates the `lastUpdated` timestamp in the frontmatter of any locally modified Markdown files (detected via `git status`). Useful before pushing changes to Notion.
 
 ## Configuration
 
-Configuration is read from `.notion-doc-fetcher.json` in the project root. Run `notion-doc-fetcher init` to generate one.
+Configuration is read from `.notion-doc-sync.json` in the project root. Run `notion-doc-sync init` to generate one.
 
 ```json
 {
@@ -77,13 +77,13 @@ Configuration is read from `.notion-doc-fetcher.json` in the project root. Run `
 }
 ```
 
-| Field | Description | Default |
-|---|---|---|
-| `notionApiKey` | Notion integration API key | — |
-| `notionDatabaseId` | Target Notion database ID | — |
-| `sourceDir` | Source code directory to analyse | `./src` |
-| `docsDir` | Local docs directory | `./notionDocs` |
-| `excludePatterns` | Glob patterns to exclude from analysis | See above |
+| Field              | Description                            | Default        |
+| ------------------ | -------------------------------------- | -------------- |
+| `notionApiKey`     | Notion integration API key             | —              |
+| `notionDatabaseId` | Target Notion database ID              | —              |
+| `sourceDir`        | Source code directory to analyse       | `./src`        |
+| `docsDir`          | Local docs directory                   | `./notionDocs` |
+| `excludePatterns`  | Glob patterns to exclude from analysis | See above      |
 
 ### Setting up Notion
 
@@ -144,18 +144,18 @@ node dist/cli.js fetch
 
 ### Available Scripts
 
-| Script | Description |
-|---|---|
-| `npm run build` | Compile TypeScript to `dist/` |
-| `npm run dev` | Run via ts-node (pass CLI args after `--`) |
-| `npm test` | Run all tests once |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run test:coverage` | Coverage report (90% threshold enforced) |
-| `npm run lint` | ESLint |
-| `npm run lint:fix` | Auto-fix lint issues |
-| `npm run format` | Prettier formatting |
-| `npm run type-check` | TypeScript type check without emit |
-| `npm run clean` | Remove `dist/` |
+| Script                  | Description                                |
+| ----------------------- | ------------------------------------------ |
+| `npm run build`         | Compile TypeScript to `dist/`              |
+| `npm run dev`           | Run via ts-node (pass CLI args after `--`) |
+| `npm test`              | Run all tests once                         |
+| `npm run test:watch`    | Run tests in watch mode                    |
+| `npm run test:coverage` | Coverage report (90% threshold enforced)   |
+| `npm run lint`          | ESLint                                     |
+| `npm run lint:fix`      | Auto-fix lint issues                       |
+| `npm run format`        | Prettier formatting                        |
+| `npm run type-check`    | TypeScript type check without emit         |
+| `npm run clean`         | Remove `dist/`                             |
 
 ### Running a Single Test File
 
@@ -167,7 +167,7 @@ npx vitest run src/__tests__/doc-mapper.test.ts
 
 ### Publishing to npm
 
-The package is configured for npm publishing with the binary name `notion-doc-fetcher`.
+The package is configured for npm publishing with the binary name `notion-doc-sync`.
 
 ```bash
 # Build, test, and publish (prepublishOnly runs automatically)
@@ -187,15 +187,15 @@ The published package includes only the compiled JavaScript (`dist/`), type decl
 Once published, users install it globally:
 
 ```bash
-npm install -g notion-doc-fetcher
-notion-doc-fetcher --help
+npm install -g notion-doc-sync
+notion-doc-sync --help
 ```
 
 Or use it as a project-local dev dependency:
 
 ```bash
-npm install --save-dev notion-doc-fetcher
-npx notion-doc-fetcher fetch
+npm install --save-dev notion-doc-sync
+npx notion-doc-sync fetch
 ```
 
 ## License
