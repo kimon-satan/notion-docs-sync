@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/await-thenable */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as childProcess from 'child_process';
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { GitAnalyzer } from './git-analyzer';
 
 // Mock child_process for git commands

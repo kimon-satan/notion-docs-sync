@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
-import { resolveConfig, validateConfig } from '../lib/config';
-import { NotionClient } from '../lib/notion-client';
-import { MdToNotionConverter } from '../lib/md-to-notion-converter';
-import { LocalDocsReader } from '../lib/local-docs-reader';
-import { compareSyncTimestamps } from '../lib/timestamp-utils';
-import type { SyncAction, SyncResult } from '../types/doc-sync';
+import { resolveConfig, validateConfig } from '@/src/lib/config';
+import { NotionClient } from '@/src/lib/notion-client';
+import { MdToNotionConverter } from '@/src/lib/md-to-notion-converter';
+import { LocalDocsReader } from '@/src/lib/local-docs-reader';
+import { compareSyncTimestamps } from '@/src/lib/timestamp-utils';
+import type { SyncAction, SyncResult } from '@/src/types/doc-sync';
 
 interface SyncOptions {
   readonly dryRun?: boolean;

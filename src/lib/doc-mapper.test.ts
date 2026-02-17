@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { DocMapper } from './doc-mapper';
-import { DocumentationFile } from '../types/doc-sync';
+
+import { DocumentationFile } from '@/src/types/doc-sync';
 
 describe('DocMapper', () => {
   let docMapper: DocMapper;

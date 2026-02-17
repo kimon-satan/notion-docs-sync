@@ -1,6 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { resolveConfig, validateConfig, getDefaultConfig } from './config';
 import * as fs from 'fs';
+
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+import { resolveConfig, validateConfig, getDefaultConfig } from './config';
 
 vi.mock('fs', () => ({
   readFileSync: vi.fn(),

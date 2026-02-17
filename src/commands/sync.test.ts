@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+import { syncCommand } from './sync';
+
 const mockFetchPagesByIds = vi.fn();
 const mockFetchPageLastEdited = vi.fn();
 const mockReplacePageContent = vi.fn();
@@ -40,8 +42,6 @@ vi.mock('../lib/config', () => ({
   }),
   validateConfig: vi.fn(),
 }));
-
-import { syncCommand } from './sync';
 
 describe('syncCommand', () => {
   beforeEach(() => {

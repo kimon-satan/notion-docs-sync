@@ -1,5 +1,6 @@
-import type { CodeChange } from '../types/doc-sync';
 import { execSync } from 'child_process';
+
+import type { CodeChange } from '@/src/types/doc-sync';
 
 export class GitAnalyzer {
   getCodeChanges(baseBranch: string, targetBranch: string): CodeChange[] {

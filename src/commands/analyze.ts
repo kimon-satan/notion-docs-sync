@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
-import { resolveConfig } from '../lib/config';
-import { GitAnalyzer } from '../lib/git-analyzer';
-import { DocMapper } from '../lib/doc-mapper';
-import { LocalDocsReader } from '../lib/local-docs-reader';
-import { DocumentationFile } from '../types/doc-sync';
 import { readFile } from 'fs/promises';
+
+import { resolveConfig } from '@/src/lib/config';
+import { GitAnalyzer } from '@/src/lib/git-analyzer';
+import { DocMapper } from '@/src/lib/doc-mapper';
+import { LocalDocsReader } from '@/src/lib/local-docs-reader';
+import { DocumentationFile } from '@/src/types/doc-sync';
 
 export interface AnalyzeOptions {
   readonly baseBranch?: string;

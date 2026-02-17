@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 import { writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { getDefaultConfig } from '../lib/config';
+
+import { getDefaultConfig } from '@/src/lib/config';
 
 const CONFIG_FILENAME = '.notion-doc-sync.json';
 

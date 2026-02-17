@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { markdownToBlocks } from '@tryfabric/martian';
+
+import { MdToNotionConverter } from './md-to-notion-converter';
 
 vi.mock('@tryfabric/martian', () => ({
   markdownToBlocks: vi.fn(),
 }));
-
-import { MdToNotionConverter } from './md-to-notion-converter';
-import { markdownToBlocks } from '@tryfabric/martian';
 
 const mockMarkdownToBlocks = vi.mocked(markdownToBlocks);
 

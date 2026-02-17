@@ -1,4 +1,4 @@
-import type { SyncDirection } from '../types/doc-sync';
+import type { SyncDirection } from '@/src/types/doc-sync';
 
 const TIMESTAMP_REGEX = /[*_]Last updated:\s*(.+?)[*_]/;
 

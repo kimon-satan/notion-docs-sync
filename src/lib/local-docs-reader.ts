@@ -1,8 +1,10 @@
 import { readdir, readFile, writeFile } from 'fs/promises';
 import { join, extname } from 'path';
+
 import { NotionDoc } from './notion-client';
-import type { LocalDocMetadata } from '../types/doc-sync';
 import { parseTimestamp, formatTimestamp, replaceTimestampInContent } from './timestamp-utils';
+
+import type { LocalDocMetadata } from '@/src/types/doc-sync';
 
 export interface LocalDocFile {
   readonly filePath: string;

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-import { resolveConfig } from '../lib/config';
-import { NotionClient } from '../lib/notion-client';
-import { LocalDocsReader } from '../lib/local-docs-reader';
+import { resolveConfig } from '@/src/lib/config';
+import { NotionClient } from '@/src/lib/notion-client';
+import { LocalDocsReader } from '@/src/lib/local-docs-reader';
 
 export async function fetchCommand(): Promise<void> {
   console.log('Starting documentation synchronization...');

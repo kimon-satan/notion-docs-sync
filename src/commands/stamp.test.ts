@@ -1,5 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFile, writeFile } from 'fs/promises';
+import { execSync } from 'child_process';
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
 import { stampCommand } from './stamp';
 
 vi.mock('fs/promises', () => ({
@@ -16,8 +19,6 @@ vi.mock('../lib/config', () => ({
     analysis: { docsDir: './notionDocs' },
   }),
 }));
-
-import { execSync } from 'child_process';
 
 const mockExecSync = vi.mocked(execSync);
 const mockReadFile = vi.mocked(readFile);

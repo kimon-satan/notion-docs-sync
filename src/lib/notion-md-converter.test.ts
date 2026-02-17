@@ -1,4 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { Client } from '@notionhq/client';
+import { NotionToMarkdown } from 'notion-to-md';
+
+import { NotionMdConverter, stripAwsCredentials } from './notion-md-converter';
 
 vi.mock('notion-to-md', () => {
   const mockPageToMarkdown = vi.fn();
@@ -13,10 +17,6 @@ vi.mock('notion-to-md', () => {
     __mockToMarkdownString: mockToMarkdownString,
   };
 });
-
-import { NotionMdConverter, stripAwsCredentials } from './notion-md-converter';
-import { Client } from '@notionhq/client';
-import { NotionToMarkdown } from 'notion-to-md';
 
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 

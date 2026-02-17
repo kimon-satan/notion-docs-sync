@@ -1,4 +1,4 @@
-import { DocumentationFile } from '../types/doc-sync';
+import { DocumentationFile } from '@/src/types/doc-sync';
 
 /**
  * Maps documentation files to relevant code files using content analysis and heuristics

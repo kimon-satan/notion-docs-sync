@@ -2,8 +2,9 @@
 import { execSync } from 'child_process';
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { resolveConfig } from '../lib/config';
-import { replaceTimestampInContent } from '../lib/timestamp-utils';
+
+import { resolveConfig } from '@/src/lib/config';
+import { replaceTimestampInContent } from '@/src/lib/timestamp-utils';
 
 export async function stampCommand(): Promise<void> {
   const config = resolveConfig();

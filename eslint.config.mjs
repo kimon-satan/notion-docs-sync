@@ -1,18 +1,20 @@
-const tseslint = require('@typescript-eslint/eslint-plugin');
-const tsparser = require('@typescript-eslint/parser');
-const prettier = require('eslint-plugin-prettier');
-const eslintConfigPrettier = require('eslint-config-prettier');
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
+import prettier from 'eslint-plugin-prettier';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import importPlugin from 'eslint-plugin-import';
+import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths';
 
-module.exports = [
+export default [
   {
-    ignores: ['dist/', 'node_modules/', 'coverage/', 'eslint.config.js'],
+    ignores: ['dist/', 'node_modules/', 'coverage/'],
   },
   {
     files: ['src/**/*.ts'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
-      parser: tsparser,
+      parser: tsParser,
       parserOptions: {
         project: './tsconfig.eslint.json',
       },
@@ -42,6 +44,8 @@ module.exports = [
     plugins: {
       '@typescript-eslint': tseslint,
       prettier,
+      import: importPlugin,
+      'no-relative-import-paths': noRelativeImportPaths,
     },
     rules: {
       ...tseslint.configs['recommended'].rules,
@@ -60,6 +64,20 @@ module.exports = [
       'no-console': 'warn',
       'prefer-const': 'error',
       'no-var': 'error',
+      'import/first': 'error',
+      'import/no-unresolved': 'error',
+      'import/no-named-as-default': 'error',
+      'import/order': [
+        'error',
+        {
+          'newlines-between': 'always',
+          warnOnUnassignedImports: true,
+        },
+      ],
+      'no-relative-import-paths/no-relative-import-paths': [
+        'error',
+        { allowSameFolder: true, prefix: '@', rootDir: '.' },
+      ],
     },
   },
 ];
