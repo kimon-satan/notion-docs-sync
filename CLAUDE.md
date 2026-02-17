@@ -54,5 +54,6 @@ Tests are co-located with source files (e.g., `src/lib/config.test.ts` next to `
 - **Naming**: kebab-case files, PascalCase classes, camelCase functions
 - **Formatting**: Prettier — 2-space indent, 100 char lines, single quotes, trailing commas (ES5), semicolons required
 - **Functions**: Max 20 lines, pure functions preferred, single responsibility
+- **Linting**: Always run `npm run lint:fix` after completing work and fix any remaining errors before finishing
 - **Git**: Conventional commits (`feat:`, `fix:`, `docs:`, etc.)
 - **Node.js**: >=18.0.0
