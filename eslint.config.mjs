@@ -47,6 +47,13 @@ export default [
       import: importPlugin,
       'no-relative-import-paths': noRelativeImportPaths,
     },
+    settings: {
+      'import/resolver': {
+        typescript: {
+          project: './tsconfig.eslint.json',
+        },
+      },
+    },
     rules: {
       ...tseslint.configs['recommended'].rules,
       ...tseslint.configs['recommended-type-checked'].rules,

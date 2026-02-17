@@ -7,7 +7,7 @@ describe('CLI', () => {
 
   function runCli(args: string): string {
     try {
-      return execSync(`npx ts-node ${cliPath} ${args}`, {
+      return execSync(`npx ts-node -r tsconfig-paths/register ${cliPath} ${args}`, {
         encoding: 'utf-8',
         cwd: resolve(__dirname, '..'),
         env: { ...process.env, NODE_ENV: 'test' },
