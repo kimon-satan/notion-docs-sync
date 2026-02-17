@@ -27,7 +27,6 @@ describe('CLI', () => {
 
       expect(output).toContain('notion-doc-sync');
       expect(output).toContain('fetch');
-      expect(output).toContain('analyze');
       expect(output).toContain('init');
     });
   });
@@ -45,15 +44,6 @@ describe('CLI', () => {
       const output = runCli('fetch --help');
 
       expect(output).toContain('Fetch documentation from Notion');
-    });
-  });
-
-  describe('analyze --help', () => {
-    it('should display analyze command help', () => {
-      const output = runCli('analyze --help');
-
-      expect(output).toContain('--base-branch');
-      expect(output).toContain('--target-branch');
     });
   });
 

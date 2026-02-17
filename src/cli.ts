@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 import { Command } from 'commander';
+
 import { fetchCommand } from './commands/fetch';
-import { analyzeCommand } from './commands/analyze';
 import { initCommand } from './commands/init';
 import { syncCommand } from './commands/sync';
 import { stampCommand } from './commands/stamp';
@@ -20,20 +20,6 @@ program
   .action(async () => {
     try {
       await fetchCommand();
-    } catch (error) {
-      console.error('Error:', error instanceof Error ? error.message : error);
-      process.exit(1);
-    }
-  });
-
-program
-  .command('analyze')
-  .description('Analyze git changes and map to documentation files')
-  .option('--base-branch <branch>', 'Base branch for comparison', 'main')
-  .option('--target-branch <branch>', 'Target branch for comparison', 'HEAD')
-  .action(async (options: { baseBranch?: string; targetBranch?: string }) => {
-    try {
-      await analyzeCommand(options);
     } catch (error) {
       console.error('Error:', error instanceof Error ? error.message : error);
       process.exit(1);

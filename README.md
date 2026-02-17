@@ -33,16 +33,6 @@ Creates a `.notion-doc-sync.json` config file in the current directory with defa
 
 Fetches documentation pages from Notion and saves/updates them as local Markdown files in the configured docs directory (default: `./notionDocs`). Pages are matched by the page IDs stored in each local file's frontmatter.
 
-### `notion-doc-sync analyze`
-
-Analyses git changes between two branches and maps them to documentation files using heuristic matching with confidence scores.
-
-```bash
-notion-doc-sync analyze                              # compare main..HEAD
-notion-doc-sync analyze --base-branch develop        # custom base branch
-notion-doc-sync analyze --target-branch feature/foo  # custom target branch
-```
-
 ### `notion-doc-sync sync`
 
 Bidirectional sync between local docs and Notion. Compares timestamps to determine whether each file should be pulled from Notion or pushed to Notion.
@@ -99,7 +89,6 @@ src/
 ├── cli.ts                          # CLI entry point (commander)
 ├── commands/
 │   ├── fetch.ts                    # fetch command
-│   ├── analyze.ts                  # analyze command
 │   ├── init.ts                     # init command
 │   ├── sync.ts                     # sync command
 │   └── stamp.ts                    # stamp command
@@ -107,8 +96,6 @@ src/
 │   ├── config.ts                   # Config loading and validation
 │   ├── notion-client.ts            # Notion API wrapper
 │   ├── local-docs-reader.ts        # Local Markdown file reader/writer
-│   ├── doc-mapper.ts               # Doc-to-code mapping with confidence scores
-│   ├── git-analyzer.ts             # Git diff extraction between branches
 │   ├── md-to-notion-converter.ts   # Markdown to Notion block converter
 │   ├── notion-md-converter.ts      # Notion to Markdown converter
 │   └── timestamp-utils.ts          # Timestamp comparison utilities
@@ -132,7 +119,6 @@ npm install
 
 # Run in development mode (via ts-node)
 npm run dev -- fetch
-npm run dev -- analyze --base-branch main
 npm run dev -- sync --dry-run
 
 # Build
@@ -160,7 +146,7 @@ node dist/cli.js fetch
 ### Running a Single Test File
 
 ```bash
-npx vitest run src/__tests__/doc-mapper.test.ts
+npx vitest run src/lib/config.test.ts
 ```
 
 ## Deployment
