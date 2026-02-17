@@ -4,23 +4,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-NotionDocFetcher is an npm CLI tool (`notion-doc-sync`) that keeps Notion documentation aligned with code changes. It fetches Notion pages as local Markdown and supports bidirectional sync between local files and Notion.
+NotionDocFetcher is a CLI tool (`notion-doc-sync`) that keeps Notion documentation aligned with code changes. It fetches Notion pages as local Markdown and supports bidirectional sync between local files and Notion.
 
 ## Commands
 
 ```bash
-npm run build            # TypeScript compilation to dist/
-npm run dev              # Development with ts-node (src/cli.ts)
-npm test                 # Run all tests once
-npm run test:watch       # Watch mode
-npm run test:coverage    # Coverage report (90% threshold enforced)
-npm run lint             # ESLint on src/**/*.ts
-npm run lint:fix         # Auto-fix lint issues
-npm run format           # Prettier formatting
-npm run type-check       # TypeScript type checking without emit
+pnpm run build            # TypeScript compilation to dist/
+pnpm run dev              # Development with tsx (src/cli.ts)
+pnpm test                 # Run all tests once
+pnpm run test:watch       # Watch mode
+pnpm run test:coverage    # Coverage report (90% threshold enforced)
+pnpm run lint             # ESLint on src/**/*.ts
+pnpm run lint:fix         # Auto-fix lint issues
+pnpm run format           # Prettier formatting
+pnpm run type-check       # TypeScript type checking without emit
 ```
 
-Run a single test file: `npx vitest run src/lib/config.test.ts`
+Run a single test file: `pnpm vitest run src/lib/config.test.ts`
 
 ### CLI Usage
 
@@ -50,6 +50,6 @@ Tests are co-located with source files (e.g., `src/lib/config.test.ts` next to `
 - **Naming**: kebab-case files, PascalCase classes, camelCase functions
 - **Formatting**: Prettier — 2-space indent, 100 char lines, single quotes, trailing commas (ES5), semicolons required
 - **Functions**: Max 20 lines, pure functions preferred, single responsibility
-- **Linting**: Always run `npm run lint:fix` after completing work and fix any remaining errors before finishing
+- **Linting**: Always run `pnpm run lint:fix` after completing work and fix any remaining errors before finishing
 - **Git**: Conventional commits (`feat:`, `fix:`, `docs:`, etc.)
 - **Node.js**: >=18.0.0

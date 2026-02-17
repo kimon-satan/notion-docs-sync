@@ -5,14 +5,14 @@ A CLI tool that keeps Notion documentation aligned with code changes. It fetches
 ## Prerequisites
 
 - Node.js >= 18.0.0 (22.x recommended — use `nvm use` to auto-switch)
-- npm
+- pnpm
 - A [Notion integration](https://developers.notion.com/) with access to your documentation pages
 
 ## Quick Start
 
 ```bash
 # Install globally from npm
-npm install -g notion-doc-sync
+pnpm install -g notion-doc-sync
 
 # Initialise config in your project
 notion-doc-sync init
@@ -115,14 +115,14 @@ cd NotionDocFetcher
 nvm use
 
 # Install dependencies
-npm install
+pnpm install
 
-# Run in development mode (via ts-node)
-npm run dev -- fetch
-npm run dev -- sync --dry-run
+# Run in development mode (via tsx)
+pnpm run dev -- fetch
+pnpm run dev -- sync --dry-run
 
 # Build
-npm run build
+pnpm run build
 
 # Run the built CLI
 node dist/cli.js fetch
@@ -130,23 +130,23 @@ node dist/cli.js fetch
 
 ### Available Scripts
 
-| Script                  | Description                                |
-| ----------------------- | ------------------------------------------ |
-| `npm run build`         | Compile TypeScript to `dist/`              |
-| `npm run dev`           | Run via ts-node (pass CLI args after `--`) |
-| `npm test`              | Run all tests once                         |
-| `npm run test:watch`    | Run tests in watch mode                    |
-| `npm run test:coverage` | Coverage report (90% threshold enforced)   |
-| `npm run lint`          | ESLint                                     |
-| `npm run lint:fix`      | Auto-fix lint issues                       |
-| `npm run format`        | Prettier formatting                        |
-| `npm run type-check`    | TypeScript type check without emit         |
-| `npm run clean`         | Remove `dist/`                             |
+| Script                   | Description                                |
+| ------------------------ | ------------------------------------------ |
+| `pnpm run build`         | Compile TypeScript to `dist/`              |
+| `pnpm run dev`           | Run via tsx (pass CLI args after `--`)      |
+| `pnpm test`              | Run all tests once                         |
+| `pnpm run test:watch`    | Run tests in watch mode                    |
+| `pnpm run test:coverage` | Coverage report (90% threshold enforced)   |
+| `pnpm run lint`          | ESLint                                     |
+| `pnpm run lint:fix`      | Auto-fix lint issues                       |
+| `pnpm run format`        | Prettier formatting                        |
+| `pnpm run type-check`    | TypeScript type check without emit         |
+| `pnpm run clean`         | Remove `dist/`                             |
 
 ### Running a Single Test File
 
 ```bash
-npx vitest run src/lib/config.test.ts
+pnpm vitest run src/lib/config.test.ts
 ```
 
 ## Deployment
@@ -157,13 +157,13 @@ The package is configured for npm publishing with the binary name `notion-doc-sy
 
 ```bash
 # Build, test, and publish (prepublishOnly runs automatically)
-npm publish
+pnpm publish
 
 # Or step by step:
-npm run clean
-npm run build
-npm test
-npm publish
+pnpm run clean
+pnpm run build
+pnpm test
+pnpm publish
 ```
 
 The published package includes only the compiled JavaScript (`dist/`), type declarations, README, and LICENSE.
@@ -173,15 +173,15 @@ The published package includes only the compiled JavaScript (`dist/`), type decl
 Once published, users install it globally:
 
 ```bash
-npm install -g notion-doc-sync
+pnpm install -g notion-doc-sync
 notion-doc-sync --help
 ```
 
 Or use it as a project-local dev dependency:
 
 ```bash
-npm install --save-dev notion-doc-sync
-npx notion-doc-sync fetch
+pnpm install --save-dev notion-doc-sync
+pnpm notion-doc-sync fetch
 ```
 
 ## License
