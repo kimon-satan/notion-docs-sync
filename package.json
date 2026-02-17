@@ -1,6 +1,6 @@
 {
   "name": "notion-doc-sync",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tool to keep Notion documentation aligned with code changes",
   "main": "./dist/cli.js",
   "bin": {
