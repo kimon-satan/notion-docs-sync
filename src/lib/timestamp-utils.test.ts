@@ -5,7 +5,7 @@ import {
   buildTimestampLine,
   replaceTimestampInContent,
   compareSyncTimestamps,
-} from '../lib/timestamp-utils';
+} from './timestamp-utils';
 
 describe('timestamp-utils', () => {
   describe('parseTimestamp', () => {

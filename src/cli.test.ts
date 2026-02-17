@@ -3,13 +3,13 @@ import { execSync } from 'child_process';
 import { resolve } from 'path';
 
 describe('CLI', () => {
-  const cliPath = resolve(__dirname, '../cli.ts');
+  const cliPath = resolve(__dirname, 'cli.ts');
 
   function runCli(args: string): string {
     try {
       return execSync(`npx ts-node ${cliPath} ${args}`, {
         encoding: 'utf-8',
-        cwd: resolve(__dirname, '../..'),
+        cwd: resolve(__dirname, '..'),
         env: { ...process.env, NODE_ENV: 'test' },
         timeout: 15000,
       });

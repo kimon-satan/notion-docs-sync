@@ -14,7 +14,7 @@ vi.mock('notion-to-md', () => {
   };
 });
 
-import { NotionMdConverter, stripAwsCredentials } from '../lib/notion-md-converter';
+import { NotionMdConverter, stripAwsCredentials } from './notion-md-converter';
 import { Client } from '@notionhq/client';
 import { NotionToMarkdown } from 'notion-to-md';
 

@@ -41,7 +41,7 @@ vi.mock('../lib/config', () => ({
   validateConfig: vi.fn(),
 }));
 
-import { syncCommand } from '../commands/sync';
+import { syncCommand } from './sync';
 
 describe('syncCommand', () => {
   beforeEach(() => {

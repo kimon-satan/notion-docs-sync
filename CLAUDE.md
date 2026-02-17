@@ -20,7 +20,7 @@ npm run format           # Prettier formatting
 npm run type-check       # TypeScript type checking without emit
 ```
 
-Run a single test file: `npx vitest run src/__tests__/doc-mapper.test.ts`
+Run a single test file: `npx vitest run src/lib/doc-mapper.test.ts`
 
 ### CLI Usage
 
@@ -45,7 +45,7 @@ All source code lives in `src/`:
 - **`src/lib/git-analyzer.ts`** — Extracts code changes between git branches via `git diff`.
 - **`src/types/doc-sync.ts`** — All TypeScript interfaces and type definitions.
 
-Tests live in `src/__tests__/` mirroring the source structure.
+Tests are co-located with source files (e.g., `src/lib/config.test.ts` next to `src/lib/config.ts`).
 
 ## Code Conventions
 

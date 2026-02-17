@@ -4,7 +4,7 @@ vi.mock('@tryfabric/martian', () => ({
   markdownToBlocks: vi.fn(),
 }));
 
-import { MdToNotionConverter } from '../lib/md-to-notion-converter';
+import { MdToNotionConverter } from './md-to-notion-converter';
 import { markdownToBlocks } from '@tryfabric/martian';
 
 const mockMarkdownToBlocks = vi.mocked(markdownToBlocks);

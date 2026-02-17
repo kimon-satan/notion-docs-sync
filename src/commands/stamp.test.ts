@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFile, writeFile } from 'fs/promises';
-import { stampCommand } from '../commands/stamp';
+import { stampCommand } from './stamp';
 
 vi.mock('fs/promises', () => ({
   readFile: vi.fn(),

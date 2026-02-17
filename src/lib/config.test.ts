@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { resolveConfig, validateConfig, getDefaultConfig } from '../lib/config';
+import { resolveConfig, validateConfig, getDefaultConfig } from './config';
 import * as fs from 'fs';
 
 vi.mock('fs', () => ({
